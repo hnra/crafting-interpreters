@@ -1,6 +1,6 @@
 namespace CraftingInterpreters;
 
-enum TokenType {
+public enum TokenType {
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
     COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
 
@@ -15,13 +15,13 @@ enum TokenType {
     EOF
 }
 
-record Token(TokenType type, string lexeme, object? literal, int line) {
+public record Token(TokenType type, string lexeme, object? literal, int line) {
     public override string ToString() {
         return $"{type} {lexeme} {literal}";
     }
 }
 
-class Scanner {
+public class Scanner {
     readonly string source;
     readonly List<Token> tokens = new List<Token>();
     int start = 0;

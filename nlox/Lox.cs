@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-namespace CraftingInterpreters;
+﻿namespace CraftingInterpreters;
 
 static class Lox {
     static bool hadError = false;

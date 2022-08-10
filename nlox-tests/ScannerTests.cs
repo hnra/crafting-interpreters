@@ -53,4 +53,16 @@ public class ScannerTests
         Assert.AreEqual(TokenType.NUMBER, tokens[3].type);
         Assert.AreEqual(12.42, tokens[3].literal);
     }
+
+    [Test]
+    public void HandlesUnNestedBlockComments()
+    {
+        var scanner = new Scanner("/* Comment\nOn multiple\nlines */\nprint");
+
+        var tokens = scanner.ScanTokens();
+
+        Assert.AreEqual(TokenType.PRINT, tokens[0].type);
+        Assert.AreEqual(4, tokens[0].line);
+        Assert.AreEqual(TokenType.EOF, tokens[1].type);
+    }
 }

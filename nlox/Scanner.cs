@@ -115,11 +115,11 @@ public class Scanner
             case '/':
                 if (Match('/'))
                 {
-                    while (!IsAtEnd() && Peek() != '\n')
-                    {
-                        Advance();
-                    }
-                    return null;
+                    return ParseComment();
+                }
+                else if (Match('*'))
+                {
+                    return ParseBlockComment();
                 }
                 return CreateToken(TokenType.SLASH);
             case '\n':
@@ -143,6 +143,35 @@ public class Scanner
                 Lox.Error(this.line, $"Unexpected character '{c}'.");
                 return null;
         }
+    }
+
+    Token? ParseComment()
+    {
+        while (!IsAtEnd() && Peek() != '\n')
+        {
+            Advance();
+        }
+        return null;
+    }
+
+    Token? ParseBlockComment()
+    {
+        while (!IsAtEnd() && !(Peek() == '*' && DoublePeek() == '/'))
+        {
+            if (Peek() == '\n')
+            {
+                this.line++;
+            }
+
+            Advance();
+        }
+
+        if (!Match('*') || !Match('/'))
+        {
+            Lox.Error(this.line, "Unterminated block comment.");
+        }
+
+        return null;
     }
 
     bool IsAlpha(char c) =>

@@ -1,0 +1,2 @@
+[*.cs]
+dotnet_diagnostic.NUnit2005.severity = none

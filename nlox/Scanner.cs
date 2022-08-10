@@ -1,6 +1,7 @@
 namespace CraftingInterpreters;
 
-public enum TokenType {
+public enum TokenType
+{
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
     COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
 
@@ -15,13 +16,16 @@ public enum TokenType {
     EOF
 }
 
-public record Token(TokenType type, string lexeme, object? literal, int line) {
-    public override string ToString() {
+public record Token(TokenType type, string lexeme, object? literal, int line)
+{
+    public override string ToString()
+    {
         return $"{type} {lexeme} {literal}";
     }
 }
 
-public class Scanner {
+public class Scanner
+{
     readonly string source;
     readonly List<Token> tokens = new List<Token>();
     int start = 0;
@@ -47,12 +51,15 @@ public class Scanner {
         {"while", TokenType.WHILE},
     };
 
-    public Scanner(string source) {
+    public Scanner(string source)
+    {
         this.source = source ?? "";
     }
 
-    public List<Token> ScanTokens() {
-        while (!IsAtEnd()) {
+    public List<Token> ScanTokens()
+    {
+        while (!IsAtEnd())
+        {
             this.start = this.current;
             ScanAndAddToken();
         }
@@ -61,18 +68,22 @@ public class Scanner {
         return this.tokens;
     }
 
-    void ScanAndAddToken() {
+    void ScanAndAddToken()
+    {
         var token = ScanToken();
-        
-        if (token != null) {
+
+        if (token != null)
+        {
             this.tokens.Add(token);
         }
     }
 
-    Token? ScanToken() {
+    Token? ScanToken()
+    {
         var c = Advance();
 
-        switch (c) {
+        switch (c)
+        {
             case '(':
                 return CreateToken(TokenType.LEFT_PAREN);
             case ')':
@@ -102,8 +113,10 @@ public class Scanner {
             case '>':
                 return CreateToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
             case '/':
-                if (Match('/')) {
-                    while (!IsAtEnd() && Peek() != '\n') {
+                if (Match('/'))
+                {
+                    while (!IsAtEnd() && Peek() != '\n')
+                    {
                         Advance();
                     }
                     return null;
@@ -119,9 +132,12 @@ public class Scanner {
             case '"':
                 return ParseString();
             default:
-                if (IsDigit(c)) {
+                if (IsDigit(c))
+                {
                     return ParseNumber();
-                } else if (IsAlpha(c)) {
+                }
+                else if (IsAlpha(c))
+                {
                     return ParseIdentifier();
                 }
                 Lox.Error(this.line, $"Unexpected character '{c}'.");
@@ -133,33 +149,40 @@ public class Scanner {
         (c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
         c == '_';
-    
+
     bool IsDigit(char c) => c >= '0' && c <= '9';
 
     bool IsAlphaNumeric(char c) => IsDigit(c) || IsAlpha(c);
-    
-    Token ParseIdentifier() {
-        while (IsAlphaNumeric(Peek())) {
+
+    Token ParseIdentifier()
+    {
+        while (IsAlphaNumeric(Peek()))
+        {
             Advance();
         }
 
         var text = this.source[this.start..this.current];
-        if (Keywords.TryGetValue(text, out var type)) {
+        if (Keywords.TryGetValue(text, out var type))
+        {
             return CreateToken(type);
         }
 
         return CreateToken(TokenType.IDENTIFIER);
     }
 
-    Token ParseNumber() {
-        while (IsDigit(Peek())) {
+    Token ParseNumber()
+    {
+        while (IsDigit(Peek()))
+        {
             Advance();
         }
 
-        if (Peek() == '.' && IsDigit(DoublePeek())) {
+        if (Peek() == '.' && IsDigit(DoublePeek()))
+        {
             Advance();
 
-            while (IsDigit(Peek())) {
+            while (IsDigit(Peek()))
+            {
                 Advance();
             }
         }
@@ -167,22 +190,26 @@ public class Scanner {
         return CreateToken(TokenType.NUMBER, double.Parse(this.source[this.start..this.current]));
     }
 
-    Token? ParseString() {
-        while (Peek() != '"' && !IsAtEnd()) {
-            if (Peek() == '\n') {
+    Token? ParseString()
+    {
+        while (Peek() != '"' && !IsAtEnd())
+        {
+            if (Peek() == '\n')
+            {
                 this.line++;
             }
             Advance();
         }
 
-        if (IsAtEnd()) {
+        if (IsAtEnd())
+        {
             Lox.Error(this.line, "Unterminated string.");
             return null;
         }
 
         Advance();
 
-        var value = this.source[(this.start + 1)..(this.current-1)];
+        var value = this.source[(this.start + 1)..(this.current - 1)];
         return CreateToken(TokenType.STRING, value);
     }
 
@@ -191,8 +218,10 @@ public class Scanner {
 
     char Peek() => IsAtEnd() ? '\0' : source[this.current];
 
-    bool Match(char expected) {
-        if (IsAtEnd() || this.source[this.current] != expected) {
+    bool Match(char expected)
+    {
+        if (IsAtEnd() || this.source[this.current] != expected)
+        {
             return false;
         }
 
@@ -204,7 +233,8 @@ public class Scanner {
 
     Token CreateToken(TokenType type) => CreateToken(type, null);
 
-    Token CreateToken(TokenType type, object? literal) {
+    Token CreateToken(TokenType type, object? literal)
+    {
         var text = this.source[this.start..this.current];
         return new Token(type, text, literal, this.line);
     }

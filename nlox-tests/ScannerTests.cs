@@ -5,7 +5,8 @@ using CraftingInterpreters;
 public class ScannerTests
 {
     [Test]
-    public void UnterminatedStringIsNotAToken() {
+    public void UnterminatedStringIsNotAToken()
+    {
         var scanner = new Scanner("\"Foo");
 
         var tokens = scanner.ScanTokens();
@@ -14,7 +15,8 @@ public class ScannerTests
     }
 
     [Test]
-    public void HandlesNewLines() {
+    public void HandlesNewLines()
+    {
         var scanner = new Scanner("var\nprint\nfun");
 
         var tokens = scanner.ScanTokens();
@@ -25,7 +27,8 @@ public class ScannerTests
     }
 
     [Test]
-    public void HandlesPrintIdentifier() {
+    public void HandlesPrintIdentifier()
+    {
         var scanner = new Scanner("print hello");
 
         var tokens = scanner.ScanTokens();
@@ -36,7 +39,8 @@ public class ScannerTests
     }
 
     [Test]
-    public void HandlesPrintNumbers() {
+    public void HandlesPrintNumbers()
+    {
         var scanner = new Scanner("print 12\nprint 12.42");
 
         var tokens = scanner.ScanTokens();

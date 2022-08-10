@@ -6,11 +6,15 @@ static class Lox {
     static bool hadError = false;
 
     public static void Main(string[] args) {
-        if (args.Length > 2) {
+        if (args.Length > 1) {
             Console.WriteLine("Usage: nlox [script]");
             Environment.Exit(64);
-        } else if (args.Length == 2) {
-            RunFile(args[1]);
+        } else if (args.Length == 1) {
+            if (File.Exists(args[0])) {
+                RunFile(args[0]);
+            } else {
+                Run(args[0]);
+            }
         } else {
             RunPrompt();
         }

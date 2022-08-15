@@ -49,7 +49,21 @@ public class AstGenerator
         var writer = new StringWriter();
 
         writer.WriteLine("namespace CraftingInterpreters.AstGen;\n");
-        writer.WriteLine($"public abstract record {baseName};");
+
+        writer.WriteLine("public interface Visitor<R>");
+        writer.WriteLine("{");
+        foreach (var type in types)
+        {
+            var typeSplit = type.Split(":");
+            var className = typeSplit[0].Trim();
+            writer.WriteLine($"    R Visit{className}{baseName}({className} {baseName.ToLower()});");
+        }
+        writer.WriteLine("}");
+
+        writer.WriteLine($"\npublic abstract record {baseName}");
+        writer.WriteLine("{");
+        writer.WriteLine("    public abstract R Accept<R>(Visitor<R> visitor);");
+        writer.WriteLine("}");
 
         foreach (var type in types)
         {
@@ -64,6 +78,9 @@ public class AstGenerator
 
     static void DefineType(StringWriter writer, string baseName, string className, string fields)
     {
-        writer.WriteLine($"public record {className}({fields}) : {baseName};");
+        writer.WriteLine($"\npublic record {className}({fields}) : {baseName}");
+        writer.WriteLine("{");
+        writer.WriteLine($"    public override R Accept<R>(Visitor<R> visitor) => visitor.Visit{className}{baseName}(this);");
+        writer.WriteLine("}");
     }
 }

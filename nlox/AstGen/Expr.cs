@@ -23,7 +23,7 @@ public record Grouping(Expr expression) : Expr
     public override R Accept<R>(Visitor<R> visitor) => visitor.VisitGroupingExpr(this);
 }
 
-public record Literal(object value) : Expr
+public record Literal(object? value) : Expr
 {
     public override R Accept<R>(Visitor<R> visitor) => visitor.VisitLiteralExpr(this);
 }

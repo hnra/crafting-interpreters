@@ -72,6 +72,18 @@ static class Lox
         Report(line, "", message);
     }
 
+    public static void Error(Token token, string message)
+    {
+        if (token.type == TokenType.EOF)
+        {
+            Report(token.line, " at end", message);
+        }
+        else
+        {
+            Report(token.line, $" at '{token.lexeme}'", message);
+        }
+    }
+
     static void Report(int line, string location, string message)
     {
         Console.Error.WriteLine($"[line {line}] Error {location}: {message}");

@@ -13,7 +13,7 @@ public class AstPrinter : Visitor<string>
         this.Parenthesize("group", expr.expression);
 
     public string VisitLiteralExpr(Literal expr) =>
-        expr.value.ToString() ?? "";
+        expr.value?.ToString() ?? "";
 
     public string VisitUnaryExpr(Unary expr) =>
         this.Parenthesize(expr.op.lexeme, expr.right);

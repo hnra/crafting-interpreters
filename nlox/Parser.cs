@@ -135,6 +135,31 @@ public class Parser
         return new ParseError();
     }
 
+    void Synchronize()
+    {
+        this.Advance();
+        while (!this.IsAtEnd())
+        {
+            if (this.Previous().type == TokenType.SEMICOLON)
+            {
+                return;
+            }
+            switch (this.Peek().type)
+            {
+                case TokenType.CLASS:
+                case TokenType.FOR:
+                case TokenType.FUN:
+                case TokenType.IF:
+                case TokenType.PRINT:
+                case TokenType.RETURN:
+                case TokenType.VAR:
+                case TokenType.WHILE:
+                    return;
+            }
+            this.Advance();
+        }
+    }
+
     bool Match(params TokenType[] types)
     {
         if (types.Any(this.Check))

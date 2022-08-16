@@ -12,7 +12,7 @@ public class Parser
     readonly List<Token> tokens;
     int current = 0;
 
-    Parser(List<Token> tokens)
+    public Parser(List<Token> tokens)
     {
         this.tokens = tokens;
     }

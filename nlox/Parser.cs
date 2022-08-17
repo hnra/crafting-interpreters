@@ -29,7 +29,20 @@ public class Parser
         }
     }
 
-    Expr Expression() => this.Equality();
+    Expr Expression() => this.Ternary();
+
+    Expr Ternary()
+    {
+        var expr = this.Equality();
+        while (this.Match(TokenType.QUESTION))
+        {
+            var onTrue = this.Equality();
+            this.Consume(TokenType.COLON, "Expected ':' in ternary expression.");
+            var onFalse = this.Equality();
+            expr = new Ternary(expr, onTrue, onFalse);
+        }
+        return expr;
+    }
 
     Expr Equality()
     {

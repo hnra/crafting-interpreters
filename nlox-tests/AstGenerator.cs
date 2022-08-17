@@ -25,6 +25,7 @@ public class AstGenerator
         {
             ("Expr", DefineAst("Expr", new[]
             {
+                "Ternary : Expr condition, Expr ifTrue, Expr ifFalse",
                 "Binary : Expr left, Token op, Expr right",
                 "Grouping : Expr expression",
                 "Literal : object? value",

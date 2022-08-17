@@ -13,6 +13,8 @@ public enum TokenType
     AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
     PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 
+    QUESTION, COLON,
+
     EOF
 }
 
@@ -131,6 +133,10 @@ public class Scanner
                 return null;
             case '"':
                 return ParseString();
+            case '?':
+                return CreateToken(TokenType.QUESTION);
+            case ':':
+                return CreateToken(TokenType.COLON);
             default:
                 if (IsDigit(c))
                 {

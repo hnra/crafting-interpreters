@@ -6,6 +6,10 @@ public class AstPrinter : Visitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 
+    // (? (cond (: )))
+    public string VisitTernaryExpr(Ternary expr) =>
+        $"(? ({expr.condition.Accept(this)} {this.Parenthesize(":", expr.ifTrue, expr.ifFalse)})";
+
     public string VisitBinaryExpr(Binary expr) =>
         this.Parenthesize(expr.op.lexeme, expr.left, expr.right);
 

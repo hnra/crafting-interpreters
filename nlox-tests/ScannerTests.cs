@@ -65,4 +65,18 @@ public class ScannerTests
         Assert.AreEqual(4, tokens[0].line);
         Assert.AreEqual(TokenType.EOF, tokens[1].type);
     }
+
+    [Test]
+    public void HandlesTernaryScanning()
+    {
+        var scanner = new Scanner("condition ? ontrue : onfalse");
+
+        var tokens = scanner.ScanTokens();
+
+        Assert.AreEqual(TokenType.IDENTIFIER, tokens[0].type);
+        Assert.AreEqual(TokenType.QUESTION, tokens[1].type);
+        Assert.AreEqual(TokenType.IDENTIFIER, tokens[2].type);
+        Assert.AreEqual(TokenType.COLON, tokens[3].type);
+        Assert.AreEqual(TokenType.IDENTIFIER, tokens[4].type);
+    }
 }

@@ -36,10 +36,10 @@ public class Parser
         var expr = this.Equality();
         while (this.Match(TokenType.QUESTION))
         {
-            var onTrue = this.Equality();
+            var ifTrue = this.Ternary();
             this.Consume(TokenType.COLON, "Expected ':' in ternary expression.");
-            var onFalse = this.Equality();
-            expr = new Ternary(expr, onTrue, onFalse);
+            var ifFalse = this.Ternary();
+            expr = new Ternary(expr, ifTrue, ifFalse);
         }
         return expr;
     }

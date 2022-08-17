@@ -81,4 +81,57 @@ public class ParserTests
             Assert.Fail();
         }
     }
+
+    [Test]
+    public void NestledOnTrueTernary()
+    {
+        var tokens = new List<Token>
+        {
+            new Token(TokenType.TRUE, "true", true, 1),
+            new Token(TokenType.QUESTION, "?", null, 1),
+            new Token(TokenType.TRUE, "true", true, 1),
+            new Token(TokenType.QUESTION, "?", null, 1),
+            new Token(TokenType.FALSE, "false", false, 1),
+            new Token(TokenType.COLON, ":", null, 1),
+            new Token(TokenType.FALSE, "false", false, 1),
+            new Token(TokenType.COLON, ":", null, 1),
+            new Token(TokenType.FALSE, "false", false, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens);
+
+        var expr = parser.Parse();
+
+        Assert.IsNotNull(expr);
+        Assert.IsTrue(expr is Ternary);
+    }
+
+    [Test]
+    public void NestledOnFalseTernary()
+    {
+        var tokens = new List<Token>
+        {
+            new Token(TokenType.TRUE, "true", true, 1),
+            new Token(TokenType.QUESTION, "?", null, 1),
+            new Token(TokenType.TRUE, "true", true, 1),
+            new Token(TokenType.COLON, ":", null, 1),
+            new Token(TokenType.TRUE, "true", true, 1),
+            new Token(TokenType.QUESTION, "?", null, 1),
+            new Token(TokenType.FALSE, "false", false, 1),
+            new Token(TokenType.COLON, ":", null, 1),
+            new Token(TokenType.FALSE, "false", false, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens);
+
+        var expr = parser.Parse();
+
+        Assert.IsNotNull(expr);
+        Assert.IsTrue(expr is Ternary);
+
+        var ternary = expr as Ternary;
+        Assert.IsTrue(ternary.condition is Literal, $"condition is: {ternary.condition.GetType()}, expected Literal.");
+        Assert.IsTrue(ternary.ifTrue is Literal, $"ifTrue is: {ternary.ifTrue.GetType()}, expected Literal.");
+        Assert.IsTrue(ternary.ifFalse is Ternary, $"ifFalse is: {ternary.ifFalse.GetType()}, expected Ternary.");
+    }
 }

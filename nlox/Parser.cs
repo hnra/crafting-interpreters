@@ -17,7 +17,17 @@ public class Parser
         this.tokens = tokens;
     }
 
-    public Expr? Parse()
+    public List<Stmt> Parse()
+    {
+        var stmts = new List<Stmt>();
+        while (!IsAtEnd())
+        {
+            stmts.Add(this.Statement());
+        }
+        return stmts;
+    }
+
+    public Expr? ParseOneExpr()
     {
         try
         {
@@ -27,6 +37,29 @@ public class Parser
         {
             return null;
         }
+    }
+
+    Stmt Statement()
+    {
+        if (Match(TokenType.PRINT))
+        {
+            return this.PrintStatement();
+        }
+        return this.ExpressionStatement();
+    }
+
+    Stmt PrintStatement()
+    {
+        var val = this.Expression();
+        this.Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Print(val);
+    }
+
+    Stmt ExpressionStatement()
+    {
+        var expr = this.Expression();
+        this.Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new Expression(expr);
     }
 
     Expr Expression() => this.Ternary();

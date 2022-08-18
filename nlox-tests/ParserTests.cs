@@ -19,7 +19,7 @@ public class ParserTests
         };
         var parser = new Parser(tokens);
 
-        var expr = parser.Parse();
+        var expr = parser.ParseOneExpr();
 
         Assert.IsNotNull(expr);
         Assert.IsTrue(expr is Ternary);
@@ -38,7 +38,7 @@ public class ParserTests
         };
         var parser = new Parser(tokens);
 
-        var expr = parser.Parse();
+        var expr = parser.ParseOneExpr();
 
         Assert.IsNull(expr);
     }
@@ -61,7 +61,7 @@ public class ParserTests
         tokens.Add(new Token(TokenType.EOF, "", null, 1));
         var parser = new Parser(tokens);
 
-        var expr = parser.Parse();
+        var expr = parser.ParseOneExpr();
 
         if (expr is Ternary ternary)
         {
@@ -100,7 +100,7 @@ public class ParserTests
         };
         var parser = new Parser(tokens);
 
-        var expr = parser.Parse();
+        var expr = parser.ParseOneExpr();
 
         Assert.IsNotNull(expr);
         Assert.IsTrue(expr is Ternary);
@@ -124,7 +124,7 @@ public class ParserTests
         };
         var parser = new Parser(tokens);
 
-        var expr = parser.Parse();
+        var expr = parser.ParseOneExpr();
 
         Assert.IsNotNull(expr);
         Assert.IsTrue(expr is Ternary);

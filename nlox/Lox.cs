@@ -67,14 +67,14 @@ static class Lox
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
         var parser = new Parser(tokens);
-        var expr = parser.Parse();
+        var stmts = parser.Parse();
 
-        if (hadError || expr == null)
+        if (hadError)
         {
             return;
         }
 
-        Console.WriteLine(interpreter.Interpret(expr));
+        interpreter.Interpret(stmts);
     }
 
     public static void Error(int line, string message)

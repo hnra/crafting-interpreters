@@ -12,7 +12,7 @@ public class RuntimeException : Exception
     }
 }
 
-public class Interpreter : ExprVisitor<object?>
+public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 {
     public string? Interpret(Expr expr)
     {
@@ -27,6 +27,23 @@ public class Interpreter : ExprVisitor<object?>
             return null;
         }
     }
+
+    public void Interpret(List<Stmt> stmts)
+    {
+        try
+        {
+            foreach (var stmt in stmts)
+            {
+                this.Execute(stmt);
+            }
+        }
+        catch (RuntimeException e)
+        {
+            Lox.RuntimeError(e);
+        }
+    }
+
+    void Execute(Stmt stmt) => stmt.Accept(this);
 
     object? Evaluate(Expr expr) => expr.Accept(this);
 
@@ -90,6 +107,19 @@ public class Interpreter : ExprVisitor<object?>
             return false;
         }
         return a.Equals(b);
+    }
+
+    public object? VisitPrintStmt(Print stmt)
+    {
+        var val = this.Evaluate(stmt.expression);
+        Console.WriteLine(Stringify(val));
+        return null;
+    }
+
+    public object? VisitExpressionStmt(Expression stmt)
+    {
+        this.Evaluate(stmt.expression);
+        return null;
     }
 
     public object? VisitLiteralExpr(Literal literal) => literal.value;

@@ -2,7 +2,7 @@ namespace CraftingInterpreters;
 
 using AstGen;
 
-public class AstPrinter : Visitor<string>
+public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 

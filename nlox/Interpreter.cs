@@ -12,7 +12,7 @@ public class RuntimeException : Exception
     }
 }
 
-public class Interpreter : Visitor<object?>
+public class Interpreter : ExprVisitor<object?>
 {
     public string? Interpret(Expr expr)
     {

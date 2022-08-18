@@ -31,6 +31,11 @@ public class AstGenerator
                 "Literal : object? value",
                 "Unary : Token op, Expr right",
             })),
+            ("Stmt", DefineAst("Stmt", new[]
+            {
+                "Expression : Expr expression",
+                "Print : Expr expression",
+            }))
         };
 
         if (!Directory.Exists(outputdir))
@@ -51,7 +56,7 @@ public class AstGenerator
 
         writer.WriteLine("namespace CraftingInterpreters.AstGen;\n");
 
-        writer.WriteLine("public interface Visitor<R>");
+        writer.WriteLine($"public interface {baseName}Visitor<R>");
         writer.WriteLine("{");
         foreach (var type in types)
         {
@@ -63,7 +68,7 @@ public class AstGenerator
 
         writer.WriteLine($"\npublic abstract record {baseName}");
         writer.WriteLine("{");
-        writer.WriteLine("    public abstract R Accept<R>(Visitor<R> visitor);");
+        writer.WriteLine($"    public abstract R Accept<R>({baseName}Visitor<R> visitor);");
         writer.WriteLine("}");
 
         foreach (var type in types)
@@ -81,7 +86,7 @@ public class AstGenerator
     {
         writer.WriteLine($"\npublic record {className}({fields}) : {baseName}");
         writer.WriteLine("{");
-        writer.WriteLine($"    public override R Accept<R>(Visitor<R> visitor) => visitor.Visit{className}{baseName}(this);");
+        writer.WriteLine($"    public override R Accept<R>({baseName}Visitor<R> visitor) => visitor.Visit{className}{baseName}(this);");
         writer.WriteLine("}");
     }
 }

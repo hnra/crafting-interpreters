@@ -67,6 +67,18 @@ public class ScannerTests
     }
 
     [Test]
+    public void NestedBlockComments()
+    {
+        var scanner = new Scanner("/* Comment\n/* With comments inside */\n*/\nprint");
+
+        var tokens = scanner.ScanTokens();
+
+        Assert.AreEqual(TokenType.PRINT, tokens[0].type);
+        Assert.AreEqual(4, tokens[0].line);
+        Assert.AreEqual(TokenType.EOF, tokens[1].type);
+    }
+
+    [Test]
     public void HandlesTernaryScanning()
     {
         var scanner = new Scanner("condition ? ontrue : onfalse");

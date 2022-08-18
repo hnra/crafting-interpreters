@@ -162,8 +162,27 @@ public class Scanner
 
     Token? ParseBlockComment()
     {
-        while (!IsAtEnd() && !(Peek() == '*' && DoublePeek() == '/'))
+        var depth = 1;
+
+        while (!IsAtEnd())
         {
+            if (Peek() == '/' && DoublePeek() == '*')
+            {
+                depth++;
+            }
+
+            if (Peek() == '*' && DoublePeek() == '/')
+            {
+                depth--;
+
+                if (depth == 0)
+                {
+                    this.Advance();
+                    this.Advance();
+                    break;
+                }
+            }
+
             if (Peek() == '\n')
             {
                 this.line++;
@@ -172,7 +191,7 @@ public class Scanner
             Advance();
         }
 
-        if (!Match('*') || !Match('/'))
+        if (depth > 0)
         {
             Lox.Error(this.line, "Unterminated block comment.");
         }

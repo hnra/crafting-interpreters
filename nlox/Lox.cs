@@ -3,6 +3,8 @@
 static class Lox
 {
     static bool hadError = false;
+    static bool hadRuntimeError = false;
+    static Interpreter interpreter = new Interpreter();
 
     public static void Main(string[] args)
     {
@@ -37,6 +39,10 @@ static class Lox
         {
             Environment.Exit(65);
         }
+        if (hadRuntimeError)
+        {
+            Environment.Exit(70);
+        }
     }
 
     static void RunPrompt()
@@ -68,7 +74,7 @@ static class Lox
             return;
         }
 
-        Console.WriteLine(new AstPrinter().Print(expr));
+        Console.WriteLine(interpreter.Interpret(expr));
     }
 
     public static void Error(int line, string message)
@@ -92,5 +98,12 @@ static class Lox
     {
         Console.Error.WriteLine($"[line {line}] Error {location}: {message}");
         hadError = true;
+    }
+
+    public static void RuntimeError(RuntimeException error)
+    {
+        Console.Error.WriteLine(error.Message);
+        Console.Error.WriteLine($"[line {error.token.line}]");
+        hadRuntimeError = true;
     }
 }

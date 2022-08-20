@@ -3,6 +3,14 @@ namespace CraftingInterpreters;
 public class Environment
 {
     readonly Dictionary<string, object?> values = new();
+    readonly Environment? enclosing = null;
+
+    public Environment() { }
+
+    public Environment(Environment enclosing)
+    {
+        this.enclosing = enclosing;
+    }
 
     public void Define(string name, object? val)
     {
@@ -17,6 +25,12 @@ public class Environment
             return;
         }
 
+        if (this.enclosing != null)
+        {
+            this.enclosing.Assign(name, val);
+            return;
+        }
+
         throw new RuntimeException(name, $"Undefined variable {name.lexeme}.");
     }
 
@@ -25,6 +39,11 @@ public class Environment
         if (this.values.TryGetValue(name.lexeme, out var val))
         {
             return val;
+        }
+
+        if (this.enclosing != null)
+        {
+            return this.enclosing.Get(name);
         }
 
         throw new RuntimeException(name, $"Undefined variable {name.lexeme}.");

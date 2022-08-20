@@ -14,7 +14,7 @@ public class RuntimeException : Exception
 
 public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 {
-    readonly Environment environment = new();
+    Environment environment = new();
 
     public string? Interpret(Expr expr)
     {
@@ -109,6 +109,29 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
             return false;
         }
         return a.Equals(b);
+    }
+
+    public object? VisitBlockStmt(Block stmt)
+    {
+        this.ExecuteBlock(stmt.statements, new Environment(this.environment));
+        return null;
+    }
+
+    void ExecuteBlock(List<Stmt> stmts, Environment environment)
+    {
+        var prevEnv = this.environment;
+        try
+        {
+            this.environment = environment;
+            foreach (var stmt in stmts)
+            {
+                Execute(stmt);
+            }
+        }
+        finally
+        {
+            this.environment = prevEnv;
+        }
     }
 
     public object? VisitAssignExpr(Assign expr)

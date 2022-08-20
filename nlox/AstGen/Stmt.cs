@@ -5,6 +5,7 @@ public interface StmtVisitor<R>
     R VisitExpressionStmt(Expression stmt);
     R VisitPrintStmt(Print stmt);
     R VisitVarStmt(Var stmt);
+    R VisitBlockStmt(Block stmt);
 }
 
 public abstract record Stmt
@@ -25,4 +26,9 @@ public record Print(Expr expression) : Stmt
 public record Var(Token name, Expr? initializer) : Stmt
 {
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitVarStmt(this);
+}
+
+public record Block(List<Stmt> statements) : Stmt
+{
+    public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitBlockStmt(this);
 }

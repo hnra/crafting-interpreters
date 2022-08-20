@@ -22,7 +22,11 @@ public class Parser
         var stmts = new List<Stmt>();
         while (!IsAtEnd())
         {
-            stmts.Add(this.Statement());
+            var decl = this.Declaration();
+            if (decl != null)
+            {
+                stmts.Add(decl);
+            }
         }
         return stmts;
     }
@@ -37,6 +41,35 @@ public class Parser
         {
             return null;
         }
+    }
+
+    Stmt? Declaration()
+    {
+        try
+        {
+            if (Match(TokenType.VAR))
+            {
+                return VarDeclaration();
+            }
+            return Statement();
+        }
+        catch (ParseError)
+        {
+            Synchronize();
+            return null;
+        }
+    }
+
+    Stmt VarDeclaration()
+    {
+        var name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
+        Expr? initializer = null;
+        if (Match(TokenType.EQUAL))
+        {
+            initializer = Expression();
+        }
+        Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration");
+        return new Var(name, initializer);
     }
 
     Stmt Statement()
@@ -159,6 +192,10 @@ public class Parser
             var expr = this.Expression();
             this.Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Grouping(expr);
+        }
+        if (this.Match(TokenType.IDENTIFIER))
+        {
+            return new Variable(this.Previous());
         }
 
         Lox.Error(this.Peek(), "Expect expression.");

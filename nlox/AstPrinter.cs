@@ -6,7 +6,11 @@ public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 
-    // (? (cond (: )))
+    public string VisitVariableExpr(Variable expr)
+    {
+        throw new NotImplementedException();
+    }
+
     public string VisitTernaryExpr(Ternary expr) =>
         $"(? {expr.condition.Accept(this)} {this.Parenthesize(":", expr.ifTrue, expr.ifFalse)})";
 

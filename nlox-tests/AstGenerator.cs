@@ -30,11 +30,13 @@ public class AstGenerator
                 "Grouping : Expr expression",
                 "Literal : object? value",
                 "Unary : Token op, Expr right",
+                "Variable : Token name",
             })),
             ("Stmt", DefineAst("Stmt", new[]
             {
                 "Expression : Expr expression",
                 "Print : Expr expression",
+                "Var : Token name, Expr? initializer",
             }))
         };
 

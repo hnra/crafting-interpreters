@@ -109,6 +109,16 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return a.Equals(b);
     }
 
+    public object? VisitVariableExpr(Variable expr)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object? VisitVarStmt(Var stmt)
+    {
+        throw new NotImplementedException();
+    }
+
     public object? VisitPrintStmt(Print stmt)
     {
         var val = this.Evaluate(stmt.expression);

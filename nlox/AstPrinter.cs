@@ -6,15 +6,11 @@ public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 
-    public string VisitAssignExpr(Assign expr)
-    {
-        throw new NotImplementedException();
-    }
+    public string VisitAssignExpr(Assign expr) =>
+        this.Parenthesize($"{expr.name}=", expr.value);
 
-    public string VisitVariableExpr(Variable expr)
-    {
-        throw new NotImplementedException();
-    }
+    public string VisitVariableExpr(Variable expr) =>
+        expr.name.lexeme;
 
     public string VisitTernaryExpr(Ternary expr) =>
         $"(? {expr.condition.Accept(this)} {this.Parenthesize(":", expr.ifTrue, expr.ifFalse)})";

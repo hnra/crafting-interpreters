@@ -16,6 +16,13 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 {
     Environment environment = new();
 
+    readonly Action<string> stdout;
+
+    public Interpreter(Action<string> stdout)
+    {
+        this.stdout = stdout;
+    }
+
     public string? Interpret(Expr expr)
     {
         try
@@ -153,7 +160,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
     public object? VisitPrintStmt(Print stmt)
     {
         var val = this.Evaluate(stmt.expression);
-        Console.WriteLine(Stringify(val));
+        this.stdout(Stringify(val));
         return null;
     }
 

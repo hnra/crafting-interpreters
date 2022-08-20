@@ -5,7 +5,7 @@ using CraftingInterpreters.AstGen;
 
 public class InterpreterTests
 {
-    static Interpreter interpreter = new Interpreter();
+    static Interpreter interpreter = new Interpreter((msg) => { });
 
     [Test]
     public void LiteralNilExpr()

@@ -1,16 +1,26 @@
 ﻿namespace CraftingInterpreters;
 
-static class Lox
+public static class Lox
 {
     static bool hadError = false;
     static bool hadRuntimeError = false;
-    static Interpreter interpreter = new Interpreter();
+    static Interpreter interpreter = new Interpreter(StdOut);
+
+    static void StdOut(string msg)
+    {
+        Console.WriteLine(msg);
+    }
+
+    static void StdErr(string msg)
+    {
+        Console.Error.WriteLine(msg);
+    }
 
     public static void Main(string[] args)
     {
         if (args.Length > 1)
         {
-            Console.WriteLine("Usage: nlox [script]");
+            StdOut("Usage: nlox [script]");
             System.Environment.Exit(64);
         }
         else if (args.Length == 1)
@@ -30,7 +40,7 @@ static class Lox
         }
     }
 
-    static void RunFile(string path)
+    public static void RunFile(string path)
     {
         string source = File.ReadAllText(path);
         Run(source);
@@ -45,7 +55,7 @@ static class Lox
         }
     }
 
-    static void RunPrompt()
+    public static void RunPrompt()
     {
         while (true)
         {
@@ -62,7 +72,7 @@ static class Lox
         }
     }
 
-    static void Run(string source)
+    public static void Run(string source)
     {
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
@@ -96,14 +106,14 @@ static class Lox
 
     static void Report(int line, string location, string message)
     {
-        Console.Error.WriteLine($"[line {line}] Error {location}: {message}");
+        StdErr($"[line {line}] Error {location}: {message}");
         hadError = true;
     }
 
     public static void RuntimeError(RuntimeException error)
     {
-        Console.Error.WriteLine(error.Message);
-        Console.Error.WriteLine($"[line {error.token.line}]");
+        StdErr(error.Message);
+        StdErr($"[line {error.token.line}]");
         hadRuntimeError = true;
     }
 }

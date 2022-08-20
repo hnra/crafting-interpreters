@@ -14,6 +14,8 @@ public class RuntimeException : Exception
 
 public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 {
+    readonly Environment environment = new();
+
     public string? Interpret(Expr expr)
     {
         try
@@ -109,14 +111,13 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return a.Equals(b);
     }
 
-    public object? VisitVariableExpr(Variable expr)
-    {
-        throw new NotImplementedException();
-    }
+    public object? VisitVariableExpr(Variable expr) => this.environment.Get(expr.name);
 
     public object? VisitVarStmt(Var stmt)
     {
-        throw new NotImplementedException();
+        var val = stmt.initializer != null ? Evaluate(stmt.initializer) : null;
+        this.environment.Define(stmt.name.lexeme, val);
+        return null;
     }
 
     public object? VisitPrintStmt(Print stmt)

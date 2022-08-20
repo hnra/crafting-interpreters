@@ -23,11 +23,13 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     readonly Action<string> stdout;
     readonly InterpreterMode mode;
+    readonly Action<RuntimeException> onError;
 
-    public Interpreter(Action<string> stdout, InterpreterMode mode)
+    public Interpreter(Action<string> stdout, InterpreterMode mode, Action<RuntimeException> onError)
     {
         this.stdout = stdout;
         this.mode = mode;
+        this.onError = onError;
     }
 
     public string? Interpret(Expr expr)
@@ -39,7 +41,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         }
         catch (RuntimeException e)
         {
-            Lox.RuntimeError(e);
+            this.onError(e);
             return null;
         }
     }
@@ -55,7 +57,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         }
         catch (RuntimeException e)
         {
-            Lox.RuntimeError(e);
+            this.onError(e);
         }
     }
 

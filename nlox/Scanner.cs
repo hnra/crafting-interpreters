@@ -30,6 +30,7 @@ public class Scanner
 {
     readonly string source;
     readonly List<Token> tokens = new List<Token>();
+    readonly Action<int, string> onError;
     int start = 0;
     int current = 0;
     int line = 1;
@@ -53,9 +54,10 @@ public class Scanner
         {"while", TokenType.WHILE},
     };
 
-    public Scanner(string source)
+    public Scanner(string source, Action<int, string> onError)
     {
         this.source = source ?? "";
+        this.onError = onError;
     }
 
     public List<Token> ScanTokens()
@@ -146,7 +148,7 @@ public class Scanner
                 {
                     return ParseIdentifier();
                 }
-                Lox.Error(this.line, $"Unexpected character '{c}'.");
+                this.onError(this.line, $"Unexpected character '{c}'.");
                 return null;
         }
     }
@@ -193,7 +195,7 @@ public class Scanner
 
         if (depth > 0)
         {
-            Lox.Error(this.line, "Unterminated block comment.");
+            this.onError(this.line, "Unterminated block comment.");
         }
 
         return null;
@@ -257,7 +259,7 @@ public class Scanner
 
         if (IsAtEnd())
         {
-            Lox.Error(this.line, "Unterminated string.");
+            this.onError(this.line, "Unterminated string.");
             return null;
         }
 

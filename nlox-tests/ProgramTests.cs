@@ -6,16 +6,19 @@ class TestLox
 {
     public List<string> Run(string source)
     {
-        var scanner = new Scanner(source);
+        var scanner = new Scanner(source, (line, msg) => { });
         var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens, ParserMode.Normal);
+        var parser = new Parser(tokens, ParserMode.Normal, (tokens, msg) => { });
         var stmts = parser.Parse();
 
         var output = new List<string>();
-        var interpreter = new Interpreter((msg) =>
-        {
-            output.Add(msg);
-        }, InterpreterMode.Normal);
+        var interpreter = new Interpreter(
+            (msg) =>
+                {
+                    output.Add(msg);
+                },
+            InterpreterMode.Normal,
+            (msg) => { });
         interpreter.Interpret(stmts);
         return output;
     }

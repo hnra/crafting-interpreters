@@ -30,7 +30,7 @@ public static class Lox
             }
             else
             {
-                var interpreter = new Interpreter(StdOut, InterpreterMode.Repl);
+                var interpreter = new Interpreter(StdOut, InterpreterMode.Repl, RuntimeError);
                 Run(args[0], ParserMode.Repl, interpreter);
             }
         }
@@ -43,7 +43,7 @@ public static class Lox
     public static void RunFile(string path)
     {
         string source = File.ReadAllText(path);
-        var interpreter = new Interpreter(StdOut, InterpreterMode.Normal);
+        var interpreter = new Interpreter(StdOut, InterpreterMode.Normal, RuntimeError);
         Run(source, ParserMode.Normal, interpreter);
 
         if (hadError)
@@ -58,7 +58,7 @@ public static class Lox
 
     public static void RunPrompt()
     {
-        var interpreter = new Interpreter(StdOut, InterpreterMode.Repl);
+        var interpreter = new Interpreter(StdOut, InterpreterMode.Repl, RuntimeError);
         while (true)
         {
             Console.Write("> ");
@@ -76,9 +76,9 @@ public static class Lox
 
     public static void Run(string source, ParserMode parserMode, Interpreter interpreter)
     {
-        var scanner = new Scanner(source);
+        var scanner = new Scanner(source, Error);
         var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens, parserMode);
+        var parser = new Parser(tokens, parserMode, Error);
         var stmts = parser.Parse();
 
         if (hadError)
@@ -89,12 +89,12 @@ public static class Lox
         interpreter.Interpret(stmts);
     }
 
-    public static void Error(int line, string message)
+    static void Error(int line, string message)
     {
         Report(line, "", message);
     }
 
-    public static void Error(Token token, string message)
+    static void Error(Token token, string message)
     {
         if (token.type == TokenType.EOF)
         {
@@ -112,7 +112,7 @@ public static class Lox
         hadError = true;
     }
 
-    public static void RuntimeError(RuntimeException error)
+    static void RuntimeError(RuntimeException error)
     {
         StdErr(error.Message);
         StdErr($"[line {error.token.line}]");

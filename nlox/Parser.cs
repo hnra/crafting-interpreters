@@ -16,11 +16,13 @@ public class Parser
 {
     readonly List<Token> tokens;
     int current = 0;
-    private readonly TokenType[] stmtEnds;
+    readonly TokenType[] stmtEnds;
+    Action<Token, string> onError;
 
-    public Parser(List<Token> tokens, ParserMode mode)
+    public Parser(List<Token> tokens, ParserMode mode, Action<Token, string> onError)
     {
         this.tokens = tokens;
+        this.onError = onError;
         this.stmtEnds = mode switch
         {
             ParserMode.Repl => new[] { TokenType.SEMICOLON, TokenType.EOF },
@@ -247,7 +249,7 @@ public class Parser
             return new Variable(this.Previous());
         }
 
-        Lox.Error(this.Peek(), "Expect expression.");
+        this.onError(this.Peek(), "Expect expression.");
         throw new ParseError();
     }
 
@@ -273,7 +275,7 @@ public class Parser
 
     ParseError Error(Token token, string message)
     {
-        Lox.Error(token, message);
+        this.onError(token, message);
         return new ParseError();
     }
 

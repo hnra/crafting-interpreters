@@ -4,10 +4,12 @@ using CraftingInterpreters;
 
 public class ScannerTests
 {
+    Scanner Create(string source) => new Scanner(source, (line, msg) => { });
+
     [Test]
     public void UnterminatedStringIsNotAToken()
     {
-        var scanner = new Scanner("\"Foo");
+        var scanner = this.Create("\"Foo");
 
         var tokens = scanner.ScanTokens();
 
@@ -17,7 +19,7 @@ public class ScannerTests
     [Test]
     public void HandlesNewLines()
     {
-        var scanner = new Scanner("var\nprint\nfun");
+        var scanner = this.Create("var\nprint\nfun");
 
         var tokens = scanner.ScanTokens();
 
@@ -29,7 +31,7 @@ public class ScannerTests
     [Test]
     public void HandlesPrintIdentifier()
     {
-        var scanner = new Scanner("print hello");
+        var scanner = this.Create("print hello");
 
         var tokens = scanner.ScanTokens();
 
@@ -41,7 +43,7 @@ public class ScannerTests
     [Test]
     public void HandlesPrintNumbers()
     {
-        var scanner = new Scanner("print 12\nprint 12.42");
+        var scanner = this.Create("print 12\nprint 12.42");
 
         var tokens = scanner.ScanTokens();
 
@@ -57,7 +59,7 @@ public class ScannerTests
     [Test]
     public void HandlesUnNestedBlockComments()
     {
-        var scanner = new Scanner("/* Comment\nOn multiple\nlines */\nprint");
+        var scanner = this.Create("/* Comment\nOn multiple\nlines */\nprint");
 
         var tokens = scanner.ScanTokens();
 
@@ -69,7 +71,7 @@ public class ScannerTests
     [Test]
     public void NestedBlockComments()
     {
-        var scanner = new Scanner("/* Comment\n/* With comments inside */\n*/\nprint");
+        var scanner = this.Create("/* Comment\n/* With comments inside */\n*/\nprint");
 
         var tokens = scanner.ScanTokens();
 
@@ -81,7 +83,7 @@ public class ScannerTests
     [Test]
     public void HandlesTernaryScanning()
     {
-        var scanner = new Scanner("condition ? ontrue : onfalse");
+        var scanner = this.Create("condition ? ontrue : onfalse");
 
         var tokens = scanner.ScanTokens();
 

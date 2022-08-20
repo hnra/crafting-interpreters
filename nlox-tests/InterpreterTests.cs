@@ -284,4 +284,25 @@ public class InterpreterTests
 
         Assert.Throws(typeof(RuntimeException), () => interpreter.VisitTernaryExpr(ternary));
     }
+
+    [Test]
+    public void UseBeforeInitIsDisallowed()
+    {
+        var hadError = false;
+        var errInterpreter = new Interpreter((msg) => { }, InterpreterMode.Normal, (err) =>
+        {
+            hadError = true;
+        });
+        var variable = new Token(TokenType.IDENTIFIER, "a", null, 1);
+        var declaration = new Var(variable, null);
+        var usage = new Expression(new Variable(variable));
+
+        errInterpreter.Interpret(new List<Stmt> { declaration, usage });
+        Assert.IsTrue(hadError);
+
+        hadError = false;
+        var assign = new Expression(new Assign(variable, new Literal("apa")));
+        errInterpreter.Interpret(new List<Stmt> { declaration, assign, usage });
+        Assert.IsFalse(hadError);
+    }
 }

@@ -157,11 +157,19 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return value;
     }
 
-    public object? VisitVariableExpr(Variable expr) => this.environment.Get(expr.name);
+    public object? VisitVariableExpr(Variable expr)
+    {
+        var value = this.environment.Get(expr.name);
+        if (value is Unassigned)
+        {
+            throw new RuntimeException(expr.name, "Variable must be initialized before use.");
+        }
+        return value;
+    }
 
     public object? VisitVarStmt(Var stmt)
     {
-        var val = stmt.initializer != null ? Evaluate(stmt.initializer) : null;
+        var val = stmt.initializer != null ? Evaluate(stmt.initializer) : Environment.unassigned;
         this.environment.Define(stmt.name.lexeme, val);
         return null;
     }

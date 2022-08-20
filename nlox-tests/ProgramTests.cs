@@ -71,4 +71,20 @@ print a;
         Assert.AreEqual("bar", output[3]);
         Assert.AreEqual("foo", output[4]);
     }
+
+    [Test]
+    public void ChallengeEightThree()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+var a = 3;
+{
+    var a = a + 2;
+    print a;
+}
+";
+        var output = lox.Run(source);
+        Assert.AreEqual("5", output[0]);
+    }
 }

@@ -2,6 +2,11 @@ namespace CraftingInterpreters;
 
 using AstGen;
 
+public enum ParserMode
+{
+    Normal, Repl,
+}
+
 public class ParseError : Exception { }
 
 /// <summary>
@@ -11,10 +16,16 @@ public class Parser
 {
     readonly List<Token> tokens;
     int current = 0;
+    private readonly TokenType[] stmtEnds;
 
-    public Parser(List<Token> tokens)
+    public Parser(List<Token> tokens, ParserMode mode)
     {
         this.tokens = tokens;
+        this.stmtEnds = mode switch
+        {
+            ParserMode.Repl => new[] { TokenType.SEMICOLON, TokenType.EOF },
+            _ => new[] { TokenType.SEMICOLON },
+        };
     }
 
     public List<Stmt> Parse()
@@ -68,7 +79,7 @@ public class Parser
         {
             initializer = Expression();
         }
-        Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration");
+        Consume(this.stmtEnds, "Expect ';' after variable declaration");
         return new Var(name, initializer);
     }
 
@@ -103,14 +114,14 @@ public class Parser
     Stmt PrintStatement()
     {
         var val = this.Expression();
-        this.Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        this.Consume(this.stmtEnds, "Expect ';' after value.");
         return new Print(val);
     }
 
     Stmt ExpressionStatement()
     {
         var expr = this.Expression();
-        this.Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        this.Consume(this.stmtEnds, "Expect ';' after expression.");
         return new Expression(expr);
     }
 
@@ -250,6 +261,16 @@ public class Parser
         throw Error(this.Peek(), message);
     }
 
+    Token Consume(TokenType[] types, string message)
+    {
+        if (types.Any(this.Check))
+        {
+            return this.Advance();
+        }
+
+        throw Error(this.Peek(), message);
+    }
+
     ParseError Error(Token token, string message)
     {
         Lox.Error(token, message);
@@ -296,7 +317,7 @@ public class Parser
     Token Previous() => this.tokens[this.current - 1];
     bool IsAtEnd() => this.Peek().type == TokenType.EOF;
     bool Check(TokenType type) =>
-        this.IsAtEnd() ? false : this.Peek().type == type;
+        this.Peek().type == type;
 
     Token Advance()
     {

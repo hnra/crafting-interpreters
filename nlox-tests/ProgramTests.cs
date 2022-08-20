@@ -8,14 +8,14 @@ class TestLox
     {
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens);
+        var parser = new Parser(tokens, ParserMode.Normal);
         var stmts = parser.Parse();
 
         var output = new List<string>();
         var interpreter = new Interpreter((msg) =>
         {
             output.Add(msg);
-        });
+        }, InterpreterMode.Normal);
         interpreter.Interpret(stmts);
         return output;
     }

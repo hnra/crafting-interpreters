@@ -111,6 +111,13 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return a.Equals(b);
     }
 
+    public object? VisitAssignExpr(Assign expr)
+    {
+        var value = Evaluate(expr.value);
+        environment.Assign(expr.name, value);
+        return value;
+    }
+
     public object? VisitVariableExpr(Variable expr) => this.environment.Get(expr.name);
 
     public object? VisitVarStmt(Var stmt)

@@ -2,6 +2,7 @@ namespace CraftingInterpreters.AstGen;
 
 public interface ExprVisitor<R>
 {
+    R VisitAssignExpr(Assign expr);
     R VisitTernaryExpr(Ternary expr);
     R VisitBinaryExpr(Binary expr);
     R VisitGroupingExpr(Grouping expr);
@@ -13,6 +14,11 @@ public interface ExprVisitor<R>
 public abstract record Expr
 {
     public abstract R Accept<R>(ExprVisitor<R> visitor);
+}
+
+public record Assign(Token name, Expr value) : Expr
+{
+    public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitAssignExpr(this);
 }
 
 public record Ternary(Expr condition, Expr ifTrue, Expr ifFalse) : Expr

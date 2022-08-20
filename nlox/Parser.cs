@@ -95,7 +95,26 @@ public class Parser
         return new Expression(expr);
     }
 
-    Expr Expression() => this.Ternary();
+    Expr Expression() => this.Assignment();
+
+    Expr Assignment()
+    {
+        var expr = this.Ternary();
+
+        if (this.Match(TokenType.EQUAL))
+        {
+            var equals = this.Previous();
+            var value = this.Assignment();
+            if (expr is Variable variable)
+            {
+                var name = variable.name;
+                return new Assign(name, value);
+            }
+            this.Error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
 
     Expr Ternary()
     {

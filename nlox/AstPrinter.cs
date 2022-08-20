@@ -6,6 +6,11 @@ public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 
+    public string VisitAssignExpr(Assign expr)
+    {
+        throw new NotImplementedException();
+    }
+
     public string VisitVariableExpr(Variable expr)
     {
         throw new NotImplementedException();

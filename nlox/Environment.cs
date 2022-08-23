@@ -18,20 +18,20 @@ public class Environment
 
     public void Define(string name, object? val)
     {
-        this.values[name] = val;
+        values[name] = val;
     }
 
     public void Assign(Token name, object? val)
     {
-        if (this.values.ContainsKey(name.lexeme))
+        if (values.ContainsKey(name.lexeme))
         {
-            this.values[name.lexeme] = val;
+            values[name.lexeme] = val;
             return;
         }
 
-        if (this.enclosing != null)
+        if (enclosing != null)
         {
-            this.enclosing.Assign(name, val);
+            enclosing.Assign(name, val);
             return;
         }
 
@@ -40,14 +40,14 @@ public class Environment
 
     public object? Get(Token name)
     {
-        if (this.values.TryGetValue(name.lexeme, out var val))
+        if (values.TryGetValue(name.lexeme, out var val))
         {
             return val;
         }
 
-        if (this.enclosing != null)
+        if (enclosing != null)
         {
-            return this.enclosing.Get(name);
+            return enclosing.Get(name);
         }
 
         throw new RuntimeException(name, $"Undefined variable {name.lexeme}.");

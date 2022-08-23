@@ -9,7 +9,7 @@ public class ScannerTests
     [Test]
     public void UnterminatedStringIsNotAToken()
     {
-        var scanner = this.Create("\"Foo");
+        var scanner = Create("\"Foo");
 
         var tokens = scanner.ScanTokens();
 
@@ -19,7 +19,7 @@ public class ScannerTests
     [Test]
     public void HandlesNewLines()
     {
-        var scanner = this.Create("var\nprint\nfun");
+        var scanner = Create("var\nprint\nfun");
 
         var tokens = scanner.ScanTokens();
 
@@ -31,7 +31,7 @@ public class ScannerTests
     [Test]
     public void HandlesPrintIdentifier()
     {
-        var scanner = this.Create("print hello");
+        var scanner = Create("print hello");
 
         var tokens = scanner.ScanTokens();
 
@@ -43,7 +43,7 @@ public class ScannerTests
     [Test]
     public void HandlesPrintNumbers()
     {
-        var scanner = this.Create("print 12\nprint 12.42");
+        var scanner = Create("print 12\nprint 12.42");
 
         var tokens = scanner.ScanTokens();
 
@@ -59,7 +59,7 @@ public class ScannerTests
     [Test]
     public void HandlesUnNestedBlockComments()
     {
-        var scanner = this.Create("/* Comment\nOn multiple\nlines */\nprint");
+        var scanner = Create("/* Comment\nOn multiple\nlines */\nprint");
 
         var tokens = scanner.ScanTokens();
 
@@ -71,7 +71,7 @@ public class ScannerTests
     [Test]
     public void NestedBlockComments()
     {
-        var scanner = this.Create("/* Comment\n/* With comments inside */\n*/\nprint");
+        var scanner = Create("/* Comment\n/* With comments inside */\n*/\nprint");
 
         var tokens = scanner.ScanTokens();
 
@@ -83,7 +83,7 @@ public class ScannerTests
     [Test]
     public void HandlesTernaryScanning()
     {
-        var scanner = this.Create("condition ? ontrue : onfalse");
+        var scanner = Create("condition ? ontrue : onfalse");
 
         var tokens = scanner.ScanTokens();
 

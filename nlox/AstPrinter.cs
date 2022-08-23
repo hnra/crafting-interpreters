@@ -7,28 +7,28 @@ public class AstPrinter : ExprVisitor<string>
     public string Print(Expr expr) => expr.Accept(this);
 
     public string VisitLogicalExpr(Logical expr) =>
-        this.Parenthesize(expr.op.lexeme, expr.left, expr.right);
+        Parenthesize(expr.op.lexeme, expr.left, expr.right);
 
     public string VisitAssignExpr(Assign expr) =>
-        this.Parenthesize($"{expr.name}=", expr.value);
+        Parenthesize($"{expr.name}=", expr.value);
 
     public string VisitVariableExpr(Variable expr) =>
         expr.name.lexeme;
 
     public string VisitTernaryExpr(Ternary expr) =>
-        $"(? {expr.condition.Accept(this)} {this.Parenthesize(":", expr.ifTrue, expr.ifFalse)})";
+        $"(? {expr.condition.Accept(this)} {Parenthesize(":", expr.ifTrue, expr.ifFalse)})";
 
     public string VisitBinaryExpr(Binary expr) =>
-        this.Parenthesize(expr.op.lexeme, expr.left, expr.right);
+        Parenthesize(expr.op.lexeme, expr.left, expr.right);
 
     public string VisitGroupingExpr(Grouping expr) =>
-        this.Parenthesize("group", expr.expression);
+        Parenthesize("group", expr.expression);
 
     public string VisitLiteralExpr(Literal expr) =>
         expr.value?.ToString() ?? "";
 
     public string VisitUnaryExpr(Unary expr) =>
-        this.Parenthesize(expr.op.lexeme, expr.right);
+        Parenthesize(expr.op.lexeme, expr.right);
 
     private string Parenthesize(string name, params Expr[] exprs)
     {

@@ -36,12 +36,12 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
     {
         try
         {
-            var value = this.Evaluate(expr);
+            var value = Evaluate(expr);
             return Stringify(value);
         }
         catch (RuntimeException e)
         {
-            this.onError(e);
+            onError(e);
             return null;
         }
     }
@@ -52,12 +52,12 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         {
             foreach (var stmt in stmts)
             {
-                this.Execute(stmt);
+                Execute(stmt);
             }
         }
         catch (RuntimeException e)
         {
-            this.onError(e);
+            onError(e);
         }
     }
 
@@ -151,7 +151,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     public object? VisitBlockStmt(Block stmt)
     {
-        this.ExecuteBlock(stmt.statements, new Environment(this.environment));
+        ExecuteBlock(stmt.statements, new Environment(environment));
         return null;
     }
 
@@ -174,7 +174,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     public object? VisitLogicalExpr(Logical expr)
     {
-        var left = this.Evaluate(expr.left);
+        var left = Evaluate(expr.left);
         if (expr.op.type == TokenType.OR)
         {
             if (IsTruthy(left))
@@ -189,7 +189,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
                 return left;
             }
         }
-        return this.Evaluate(expr.right);
+        return Evaluate(expr.right);
     }
 
     public object? VisitAssignExpr(Assign expr)
@@ -201,7 +201,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     public object? VisitVariableExpr(Variable expr)
     {
-        var value = this.environment.Get(expr.name);
+        var value = environment.Get(expr.name);
         if (value is Unassigned)
         {
             throw new RuntimeException(expr.name, "Variable must be initialized before use.");
@@ -212,23 +212,23 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
     public object? VisitVarStmt(Var stmt)
     {
         var val = stmt.initializer != null ? Evaluate(stmt.initializer) : Environment.unassigned;
-        this.environment.Define(stmt.name.lexeme, val);
+        environment.Define(stmt.name.lexeme, val);
         return null;
     }
 
     public object? VisitPrintStmt(Print stmt)
     {
-        var val = this.Evaluate(stmt.expression);
-        this.stdout(Stringify(val));
+        var val = Evaluate(stmt.expression);
+        stdout(Stringify(val));
         return null;
     }
 
     public object? VisitExpressionStmt(Expression stmt)
     {
-        var val = this.Evaluate(stmt.expression);
-        if (this.mode == InterpreterMode.Repl)
+        var val = Evaluate(stmt.expression);
+        if (mode == InterpreterMode.Repl)
         {
-            this.stdout(Stringify(val));
+            stdout(Stringify(val));
         }
         return null;
     }
@@ -237,23 +237,23 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     public object? VisitTernaryExpr(Ternary ternary)
     {
-        var condition = this.Evaluate(ternary.condition);
+        var condition = Evaluate(ternary.condition);
 
         if (IsTruthy(condition))
         {
-            return this.Evaluate(ternary.ifTrue);
+            return Evaluate(ternary.ifTrue);
         }
         else
         {
-            return this.Evaluate(ternary.ifFalse);
+            return Evaluate(ternary.ifFalse);
         }
     }
 
-    public object? VisitGroupingExpr(Grouping grouping) => this.Evaluate(grouping.expression);
+    public object? VisitGroupingExpr(Grouping grouping) => Evaluate(grouping.expression);
 
     public object? VisitUnaryExpr(Unary unary)
     {
-        var right = this.Evaluate(unary.right);
+        var right = Evaluate(unary.right);
 
         switch (unary.op.type)
         {
@@ -271,8 +271,8 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     public object? VisitBinaryExpr(Binary binary)
     {
-        var left = this.Evaluate(binary.left);
-        var right = this.Evaluate(binary.right);
+        var left = Evaluate(binary.left);
+        var right = Evaluate(binary.right);
 
         switch (binary.op.type)
         {

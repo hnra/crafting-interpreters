@@ -35,7 +35,7 @@ public class Parser
         var stmts = new List<Stmt>();
         while (!IsAtEnd())
         {
-            var decl = this.Declaration();
+            var decl = Declaration();
             if (decl != null)
             {
                 stmts.Add(decl);
@@ -48,7 +48,7 @@ public class Parser
     {
         try
         {
-            return this.Expression();
+            return Expression();
         }
         catch (ParseError)
         {
@@ -81,7 +81,7 @@ public class Parser
         {
             initializer = Expression();
         }
-        Consume(this.stmtEnds, "Expect ';' after variable declaration");
+        Consume(stmtEnds, "Expect ';' after variable declaration");
         return new Var(name, initializer);
     }
 
@@ -89,25 +89,25 @@ public class Parser
     {
         if (Match(TokenType.PRINT))
         {
-            return this.PrintStatement();
+            return PrintStatement();
         }
         if (Match(TokenType.LEFT_BRACE))
         {
-            return new Block(this.Block());
+            return new Block(Block());
         }
         if (Match(TokenType.IF))
         {
-            return this.IfStatement();
+            return IfStatement();
         }
         if (Match(TokenType.WHILE))
         {
-            return this.WhileStatement();
+            return WhileStatement();
         }
         if (Match(TokenType.FOR))
         {
-            return this.ForStatement();
+            return ForStatement();
         }
-        return this.ExpressionStatement();
+        return ExpressionStatement();
     }
 
     Stmt ForStatement()
@@ -143,7 +143,7 @@ public class Parser
         Consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
 
         // Desugar to while-loop.
-        var body = this.Statement();
+        var body = Statement();
         if (increment != null)
         {
             body = new Block(new() { body, new Expression(increment) });
@@ -161,19 +161,19 @@ public class Parser
     Stmt WhileStatement()
     {
         Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
-        var condition = this.Expression();
+        var condition = Expression();
         Consume(TokenType.RIGHT_PAREN, "Expect ')' after while condition.");
-        var body = this.Statement();
+        var body = Statement();
         return new While(condition, body);
     }
 
     Stmt IfStatement()
     {
         Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
-        var condition = this.Expression();
+        var condition = Expression();
         Consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
-        var thenBranch = this.Statement();
-        var elseBranch = Match(TokenType.ELSE) ? this.Statement() : null;
+        var thenBranch = Statement();
+        var elseBranch = Match(TokenType.ELSE) ? Statement() : null;
         return new If(condition, thenBranch, elseBranch);
     }
 
@@ -182,7 +182,7 @@ public class Parser
         var stmts = new List<Stmt>();
         while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
         {
-            var stmt = this.Declaration();
+            var stmt = Declaration();
             if (stmt != null)
             {
                 stmts.Add(stmt);
@@ -194,34 +194,34 @@ public class Parser
 
     Stmt PrintStatement()
     {
-        var val = this.Expression();
-        this.Consume(this.stmtEnds, "Expect ';' after value.");
+        var val = Expression();
+        Consume(stmtEnds, "Expect ';' after value.");
         return new Print(val);
     }
 
     Stmt ExpressionStatement()
     {
-        var expr = this.Expression();
-        this.Consume(this.stmtEnds, "Expect ';' after expression.");
+        var expr = Expression();
+        Consume(stmtEnds, "Expect ';' after expression.");
         return new Expression(expr);
     }
 
-    Expr Expression() => this.Assignment();
+    Expr Expression() => Assignment();
 
     Expr Assignment()
     {
-        var expr = this.Or();
+        var expr = Or();
 
-        if (this.Match(TokenType.EQUAL))
+        if (Match(TokenType.EQUAL))
         {
-            var equals = this.Previous();
-            var value = this.Assignment();
+            var equals = Previous();
+            var value = Assignment();
             if (expr is Variable variable)
             {
                 var name = variable.name;
                 return new Assign(name, value);
             }
-            this.Error(equals, "Invalid assignment target.");
+            Error(equals, "Invalid assignment target.");
         }
 
         return expr;
@@ -229,11 +229,11 @@ public class Parser
 
     Expr Or()
     {
-        var expr = this.And();
+        var expr = And();
         while (Match(TokenType.OR))
         {
-            var op = this.Previous();
-            var right = this.And();
+            var op = Previous();
+            var right = And();
             expr = new Logical(expr, op, right);
         }
         return expr;
@@ -241,11 +241,11 @@ public class Parser
 
     Expr And()
     {
-        var expr = this.Ternary();
+        var expr = Ternary();
         while (Match(TokenType.AND))
         {
-            var op = this.Previous();
-            var right = this.Ternary();
+            var op = Previous();
+            var right = Ternary();
             expr = new Logical(expr, op, right);
         }
         return expr;
@@ -253,12 +253,12 @@ public class Parser
 
     Expr Ternary()
     {
-        var expr = this.Equality();
-        while (this.Match(TokenType.QUESTION))
+        var expr = Equality();
+        while (Match(TokenType.QUESTION))
         {
-            var ifTrue = this.Ternary();
-            this.Consume(TokenType.COLON, "Expected ':' in ternary expression.");
-            var ifFalse = this.Ternary();
+            var ifTrue = Ternary();
+            Consume(TokenType.COLON, "Expected ':' in ternary expression.");
+            var ifFalse = Ternary();
             expr = new Ternary(expr, ifTrue, ifFalse);
         }
         return expr;
@@ -266,11 +266,11 @@ public class Parser
 
     Expr Equality()
     {
-        var expr = this.Comparison();
-        while (this.Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
+        var expr = Comparison();
+        while (Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
         {
-            var op = this.Previous();
-            var right = this.Comparison();
+            var op = Previous();
+            var right = Comparison();
             expr = new Binary(expr, op, right);
         }
         return expr;
@@ -278,11 +278,11 @@ public class Parser
 
     Expr Comparison()
     {
-        var expr = this.Term();
-        while (this.Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
+        var expr = Term();
+        while (Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
         {
-            var op = this.Previous();
-            var right = this.Term();
+            var op = Previous();
+            var right = Term();
             expr = new Binary(expr, op, right);
         }
         return expr;
@@ -290,11 +290,11 @@ public class Parser
 
     Expr Term()
     {
-        var expr = this.Factor();
-        while (this.Match(TokenType.MINUS, TokenType.PLUS))
+        var expr = Factor();
+        while (Match(TokenType.MINUS, TokenType.PLUS))
         {
-            var op = this.Previous();
-            var right = this.Factor();
+            var op = Previous();
+            var right = Factor();
             expr = new Binary(expr, op, right);
         }
         return expr;
@@ -302,11 +302,11 @@ public class Parser
 
     Expr Factor()
     {
-        var expr = this.Unary();
-        while (this.Match(TokenType.SLASH, TokenType.STAR))
+        var expr = Unary();
+        while (Match(TokenType.SLASH, TokenType.STAR))
         {
-            var op = this.Previous();
-            var right = this.Unary();
+            var op = Previous();
+            var right = Unary();
             expr = new Binary(expr, op, right);
         }
         return expr;
@@ -316,82 +316,82 @@ public class Parser
     {
         if (Match(TokenType.BANG, TokenType.MINUS))
         {
-            var op = this.Previous();
-            var right = this.Unary();
+            var op = Previous();
+            var right = Unary();
             return new Unary(op, right);
         }
-        return this.Primary();
+        return Primary();
     }
 
     Expr Primary()
     {
-        if (this.Match(TokenType.FALSE))
+        if (Match(TokenType.FALSE))
         {
             return new Literal(false);
         }
-        if (this.Match(TokenType.TRUE))
+        if (Match(TokenType.TRUE))
         {
             return new Literal(true);
         }
-        if (this.Match(TokenType.NIL))
+        if (Match(TokenType.NIL))
         {
             return new Literal(null);
         }
-        if (this.Match(TokenType.NUMBER, TokenType.STRING))
+        if (Match(TokenType.NUMBER, TokenType.STRING))
         {
-            return new Literal(this.Previous().literal);
+            return new Literal(Previous().literal);
         }
-        if (this.Match(TokenType.LEFT_PAREN))
+        if (Match(TokenType.LEFT_PAREN))
         {
-            var expr = this.Expression();
-            this.Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+            var expr = Expression();
+            Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Grouping(expr);
         }
-        if (this.Match(TokenType.IDENTIFIER))
+        if (Match(TokenType.IDENTIFIER))
         {
-            return new Variable(this.Previous());
+            return new Variable(Previous());
         }
 
-        this.onError(this.Peek(), "Expect expression.");
+        onError(Peek(), "Expect expression.");
         throw new ParseError();
     }
 
     Token Consume(TokenType type, string message)
     {
-        if (this.Check(type))
+        if (Check(type))
         {
-            return this.Advance();
+            return Advance();
         }
 
-        throw Error(this.Peek(), message);
+        throw Error(Peek(), message);
     }
 
     Token Consume(TokenType[] types, string message)
     {
-        if (types.Any(this.Check))
+        if (types.Any(Check))
         {
-            return this.Advance();
+            return Advance();
         }
 
-        throw Error(this.Peek(), message);
+        throw Error(Peek(), message);
     }
 
     ParseError Error(Token token, string message)
     {
-        this.onError(token, message);
+        onError(token, message);
         return new ParseError();
     }
 
     void Synchronize()
     {
-        this.Advance();
-        while (!this.IsAtEnd())
+        Advance();
+        while (!IsAtEnd())
         {
-            if (this.Previous().type == TokenType.SEMICOLON)
+            if (Previous().type == TokenType.SEMICOLON)
             {
                 return;
             }
-            switch (this.Peek().type)
+            switch (Peek().type)
             {
                 case TokenType.CLASS:
                 case TokenType.FOR:
@@ -403,33 +403,33 @@ public class Parser
                 case TokenType.WHILE:
                     return;
             }
-            this.Advance();
+            Advance();
         }
     }
 
     bool Match(params TokenType[] types)
     {
-        if (types.Any(this.Check))
+        if (types.Any(Check))
         {
-            this.Advance();
+            Advance();
             return true;
         }
 
         return false;
     }
 
-    Token Peek() => this.tokens[this.current];
-    Token Previous() => this.tokens[this.current - 1];
-    bool IsAtEnd() => this.Peek().type == TokenType.EOF;
+    Token Peek() => tokens[current];
+    Token Previous() => tokens[current - 1];
+    bool IsAtEnd() => Peek().type == TokenType.EOF;
     bool Check(TokenType type) =>
-        this.Peek().type == type;
+        Peek().type == type;
 
     Token Advance()
     {
         if (!IsAtEnd())
         {
-            this.current++;
+            current++;
         }
-        return this.Previous();
+        return Previous();
     }
 }

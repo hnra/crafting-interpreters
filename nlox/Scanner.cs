@@ -64,12 +64,12 @@ public class Scanner
     {
         while (!IsAtEnd())
         {
-            this.start = this.current;
+            start = current;
             ScanAndAddToken();
         }
 
-        this.tokens.Add(new Token(TokenType.EOF, "", null, this.line));
-        return this.tokens;
+        tokens.Add(new Token(TokenType.EOF, "", null, line));
+        return tokens;
     }
 
     void ScanAndAddToken()
@@ -78,7 +78,7 @@ public class Scanner
 
         if (token != null)
         {
-            this.tokens.Add(token);
+            tokens.Add(token);
         }
     }
 
@@ -127,7 +127,7 @@ public class Scanner
                 }
                 return CreateToken(TokenType.SLASH);
             case '\n':
-                this.line++;
+                line++;
                 return null;
             case ' ':
             case '\r':
@@ -148,7 +148,7 @@ public class Scanner
                 {
                     return ParseIdentifier();
                 }
-                this.onError(this.line, $"Unexpected character '{c}'.");
+                onError(line, $"Unexpected character '{c}'.");
                 return null;
         }
     }
@@ -179,15 +179,15 @@ public class Scanner
 
                 if (depth == 0)
                 {
-                    this.Advance();
-                    this.Advance();
+                    Advance();
+                    Advance();
                     break;
                 }
             }
 
             if (Peek() == '\n')
             {
-                this.line++;
+                line++;
             }
 
             Advance();
@@ -195,7 +195,7 @@ public class Scanner
 
         if (depth > 0)
         {
-            this.onError(this.line, "Unterminated block comment.");
+            onError(line, "Unterminated block comment.");
         }
 
         return null;
@@ -217,7 +217,7 @@ public class Scanner
             Advance();
         }
 
-        var text = this.source[this.start..this.current];
+        var text = source[start..current];
         if (Keywords.TryGetValue(text, out var type))
         {
             return CreateToken(type);
@@ -243,7 +243,7 @@ public class Scanner
             }
         }
 
-        return CreateToken(TokenType.NUMBER, double.Parse(this.source[this.start..this.current]));
+        return CreateToken(TokenType.NUMBER, double.Parse(source[start..current]));
     }
 
     Token? ParseString()
@@ -252,47 +252,47 @@ public class Scanner
         {
             if (Peek() == '\n')
             {
-                this.line++;
+                line++;
             }
             Advance();
         }
 
         if (IsAtEnd())
         {
-            this.onError(this.line, "Unterminated string.");
+            onError(line, "Unterminated string.");
             return null;
         }
 
         Advance();
 
-        var value = this.source[(this.start + 1)..(this.current - 1)];
+        var value = source[(start + 1)..(current - 1)];
         return CreateToken(TokenType.STRING, value);
     }
 
     char DoublePeek()
-        => this.current + 1 >= this.source.Length ? '\0' : this.source[this.current + 1];
+        => current + 1 >= source.Length ? '\0' : source[current + 1];
 
-    char Peek() => IsAtEnd() ? '\0' : source[this.current];
+    char Peek() => IsAtEnd() ? '\0' : source[current];
 
     bool Match(char expected)
     {
-        if (IsAtEnd() || this.source[this.current] != expected)
+        if (IsAtEnd() || source[current] != expected)
         {
             return false;
         }
 
-        this.current++;
+        current++;
         return true;
     }
 
-    char Advance() => this.source[this.current++];
+    char Advance() => source[current++];
 
     Token CreateToken(TokenType type) => CreateToken(type, null);
 
     Token CreateToken(TokenType type, object? literal)
     {
-        var text = this.source[this.start..this.current];
-        return new Token(type, text, literal, this.line);
+        var text = source[start..current];
+        return new Token(type, text, literal, line);
     }
 
     bool IsAtEnd() => current >= source.Length;

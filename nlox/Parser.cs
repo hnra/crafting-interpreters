@@ -103,7 +103,59 @@ public class Parser
         {
             return this.WhileStatement();
         }
+        if (Match(TokenType.FOR))
+        {
+            return this.ForStatement();
+        }
         return this.ExpressionStatement();
+    }
+
+    Stmt ForStatement()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+        Stmt? initializer;
+        if (Match(TokenType.SEMICOLON))
+        {
+            initializer = null;
+        }
+        else if (Match(TokenType.VAR))
+        {
+            initializer = VarDeclaration();
+        }
+        else
+        {
+            initializer = ExpressionStatement();
+        }
+
+        Expr? condition = null;
+        if (!Check(TokenType.SEMICOLON))
+        {
+            condition = Expression();
+        }
+        Consume(TokenType.SEMICOLON, "Expect to see a ';' after loop condition.");
+
+        Expr? increment = null;
+        if (!Check(TokenType.SEMICOLON))
+        {
+            increment = Expression();
+        }
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        // Desugar to while-loop.
+        var body = this.Statement();
+        if (increment != null)
+        {
+            body = new Block(new() { body, new Expression(increment) });
+        }
+        condition ??= new Literal(true);
+        body = new While(condition, body);
+        if (initializer != null)
+        {
+            body = new Block(new() { initializer, body });
+        }
+
+        return body;
     }
 
     Stmt WhileStatement()

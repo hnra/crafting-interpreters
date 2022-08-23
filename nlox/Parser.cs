@@ -95,7 +95,21 @@ public class Parser
         {
             return new Block(this.Block());
         }
+        if (Match(TokenType.IF))
+        {
+            return this.IfStatement();
+        }
         return this.ExpressionStatement();
+    }
+
+    Stmt IfStatement()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        var condition = this.Expression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+        var thenBranch = this.Statement();
+        var elseBranch = Match(TokenType.ELSE) ? this.Statement() : null;
+        return new If(condition, thenBranch, elseBranch);
     }
 
     List<Stmt> Block()

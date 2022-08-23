@@ -127,6 +127,19 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return a.Equals(b);
     }
 
+    public object? VisitIfStmt(If stmt)
+    {
+        if (IsTruthy(Evaluate(stmt.condition)))
+        {
+            Execute(stmt.thenBranch);
+        }
+        else if (stmt.elseBranch != null)
+        {
+            Execute(stmt.elseBranch);
+        }
+        return null;
+    }
+
     public object? VisitBlockStmt(Block stmt)
     {
         this.ExecuteBlock(stmt.statements, new Environment(this.environment));

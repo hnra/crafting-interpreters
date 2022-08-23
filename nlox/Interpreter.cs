@@ -127,6 +127,15 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return a.Equals(b);
     }
 
+    public object? VisitWhileStmt(While stmt)
+    {
+        while (IsTruthy(Evaluate(stmt.condition)))
+        {
+            Execute(stmt.body);
+        }
+        return null;
+    }
+
     public object? VisitIfStmt(If stmt)
     {
         if (IsTruthy(Evaluate(stmt.condition)))

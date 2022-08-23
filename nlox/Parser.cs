@@ -99,7 +99,20 @@ public class Parser
         {
             return this.IfStatement();
         }
+        if (Match(TokenType.WHILE))
+        {
+            return this.WhileStatement();
+        }
         return this.ExpressionStatement();
+    }
+
+    Stmt WhileStatement()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        var condition = this.Expression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after while condition.");
+        var body = this.Statement();
+        return new While(condition, body);
     }
 
     Stmt IfStatement()

@@ -163,6 +163,26 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         }
     }
 
+    public object? VisitLogicalExpr(Logical expr)
+    {
+        var left = this.Evaluate(expr.left);
+        if (expr.op.type == TokenType.OR)
+        {
+            if (IsTruthy(left))
+            {
+                return left;
+            }
+        }
+        else
+        {
+            if (!IsTruthy(left))
+            {
+                return left;
+            }
+        }
+        return this.Evaluate(expr.right);
+    }
+
     public object? VisitAssignExpr(Assign expr)
     {
         var value = Evaluate(expr.value);

@@ -7,6 +7,7 @@ public interface ExprVisitor<R>
     R VisitBinaryExpr(Binary expr);
     R VisitGroupingExpr(Grouping expr);
     R VisitLiteralExpr(Literal expr);
+    R VisitLogicalExpr(Logical expr);
     R VisitUnaryExpr(Unary expr);
     R VisitVariableExpr(Variable expr);
 }
@@ -39,6 +40,11 @@ public record Grouping(Expr expression) : Expr
 public record Literal(object? value) : Expr
 {
     public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitLiteralExpr(this);
+}
+
+public record Logical(Expr left, Token op, Expr right) : Expr
+{
+    public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitLogicalExpr(this);
 }
 
 public record Unary(Token op, Expr right) : Expr

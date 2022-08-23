@@ -6,6 +6,9 @@ public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 
+    public string VisitLogicalExpr(Logical expr) =>
+        this.Parenthesize(expr.op.lexeme, expr.left, expr.right);
+
     public string VisitAssignExpr(Assign expr) =>
         this.Parenthesize($"{expr.name}=", expr.value);
 

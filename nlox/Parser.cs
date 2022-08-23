@@ -145,7 +145,7 @@ public class Parser
 
     Expr Assignment()
     {
-        var expr = this.Ternary();
+        var expr = this.Or();
 
         if (this.Match(TokenType.EQUAL))
         {
@@ -159,6 +159,30 @@ public class Parser
             this.Error(equals, "Invalid assignment target.");
         }
 
+        return expr;
+    }
+
+    Expr Or()
+    {
+        var expr = this.And();
+        while (Match(TokenType.OR))
+        {
+            var op = this.Previous();
+            var right = this.And();
+            expr = new Logical(expr, op, right);
+        }
+        return expr;
+    }
+
+    Expr And()
+    {
+        var expr = this.Ternary();
+        while (Match(TokenType.AND))
+        {
+            var op = this.Previous();
+            var right = this.Ternary();
+            expr = new Logical(expr, op, right);
+        }
         return expr;
     }
 

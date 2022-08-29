@@ -19,7 +19,9 @@ public class RuntimeException : Exception
 
 public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 {
-    Environment environment = new();
+    readonly Environment globals = new();
+
+    Environment environment;
 
     readonly Action<string> stdout;
     readonly InterpreterMode mode;
@@ -30,6 +32,9 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         this.stdout = stdout;
         this.mode = mode;
         this.onError = onError;
+        this.environment = globals;
+
+        this.globals.Define("clock", new Clock());
     }
 
     public string? Interpret(Expr expr)

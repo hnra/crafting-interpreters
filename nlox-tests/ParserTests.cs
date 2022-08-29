@@ -227,4 +227,73 @@ public class ParserTests
 
         Assert.IsTrue(hadError);
     }
+
+    [Test]
+    public void SimpleFunctionDeclaration()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.FUN, "fun", null, 1),
+            new Token(TokenType.IDENTIFIER, "foo", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.LEFT_BRACE, "{", null, 1),
+            new Token(TokenType.RIGHT_BRACE, "}", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+
+        var stmts = parser.Parse();
+
+        CollectionAssert.IsNotEmpty(stmts);
+        var declaration = stmts[0];
+        Assert.IsTrue(declaration is Function);
+    }
+
+    [Test]
+    public void DeclarationWithOneArgument()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.FUN, "fun", null, 1),
+            new Token(TokenType.IDENTIFIER, "foo", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+            new Token(TokenType.IDENTIFIER, "apa", null, 1),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.LEFT_BRACE, "{", null, 1),
+            new Token(TokenType.RIGHT_BRACE, "}", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+
+        var stmts = parser.Parse();
+
+        CollectionAssert.IsNotEmpty(stmts);
+        var declaration = stmts[0];
+        Assert.IsTrue(declaration is Function);
+        Assert.AreEqual(1, (declaration as Function).parameters.Count);
+    }
+
+    [Test]
+    public void DeclarationWithTwoArguments()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.FUN, "fun", null, 1),
+            new Token(TokenType.IDENTIFIER, "foo", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+            new Token(TokenType.IDENTIFIER, "apa", null, 1),
+            new Token(TokenType.COMMA, ",", null, 1),
+            new Token(TokenType.IDENTIFIER, "bepa", null, 1),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.LEFT_BRACE, "{", null, 1),
+            new Token(TokenType.RIGHT_BRACE, "}", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+
+        var stmts = parser.Parse();
+
+        CollectionAssert.IsNotEmpty(stmts);
+        var declaration = stmts[0];
+        Assert.IsTrue(declaration is Function);
+        Assert.AreEqual(2, (declaration as Function).parameters.Count);
+    }
 }

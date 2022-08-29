@@ -132,6 +132,11 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return a.Equals(b);
     }
 
+    public object? VisitFunctionStmt(Function stmt)
+    {
+        throw new NotImplementedException();
+    }
+
     public object? VisitWhileStmt(While stmt)
     {
         while (IsTruthy(Evaluate(stmt.condition)))

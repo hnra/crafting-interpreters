@@ -43,6 +43,7 @@ public class AstGenerator
                 "While : Expr condition, Stmt body",
                 "Var : Token name, Expr? initializer",
                 "Block : List<Stmt> statements",
+                "Function : Token name, List<Token> parameters, List<Stmt> body",
             }))
         };
 

@@ -8,6 +8,7 @@ public interface StmtVisitor<R>
     R VisitWhileStmt(While stmt);
     R VisitVarStmt(Var stmt);
     R VisitBlockStmt(Block stmt);
+    R VisitFunctionStmt(Function stmt);
 }
 
 public abstract record Stmt
@@ -43,4 +44,9 @@ public record Var(Token name, Expr? initializer) : Stmt
 public record Block(List<Stmt> statements) : Stmt
 {
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitBlockStmt(this);
+}
+
+public record Function(Token name, List<Token> parameters, List<Stmt> body) : Stmt
+{
+    public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitFunctionStmt(this);
 }

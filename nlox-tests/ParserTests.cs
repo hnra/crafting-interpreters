@@ -134,4 +134,97 @@ public class ParserTests
         Assert.IsTrue(ternary.ifTrue is Literal, $"ifTrue is: {ternary.ifTrue.GetType()}, expected Literal.");
         Assert.IsTrue(ternary.ifFalse is Ternary, $"ifFalse is: {ternary.ifFalse.GetType()}, expected Ternary.");
     }
+
+    [Test]
+    public void SimpleFunctionCall()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.IDENTIFIER, "foo", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+
+        var expr = parser.ParseOneExpr();
+
+        Assert.IsNotNull(expr);
+        Assert.IsTrue(expr is Call);
+        CollectionAssert.IsEmpty((expr as Call).arguments);
+    }
+
+    [Test]
+    public void CallWithOneArgument()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.IDENTIFIER, "foo", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+            new Token(TokenType.NUMBER, "42", 42, 1),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+
+        var expr = parser.ParseOneExpr();
+
+        Assert.IsNotNull(expr);
+        Assert.IsTrue(expr is Call);
+        CollectionAssert.IsNotEmpty((expr as Call).arguments);
+    }
+
+    [Test]
+    public void CallWithTwoArguments()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.IDENTIFIER, "foo", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+            new Token(TokenType.NUMBER, "42", 42, 1),
+            new Token(TokenType.COMMA, ",", null, 1),
+            new Token(TokenType.STRING, "bar", "bar", 1),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+
+        var expr = parser.ParseOneExpr();
+
+        Assert.IsNotNull(expr);
+        Assert.IsTrue(expr is Call);
+        Assert.AreEqual(2, (expr as Call).arguments.Count);
+    }
+
+    [Test]
+    public void MaxArgsIs255()
+    {
+        const int maxArgs = 255;
+        var tokens = new List<Token> {
+            new Token(TokenType.IDENTIFIER, "foo", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+        };
+        foreach (var i in Enumerable.Range(0, maxArgs + 1))
+        {
+            tokens.Add(new Token(TokenType.NUMBER, i.ToString(), i, 1));
+            if (i < maxArgs)
+            {
+                tokens.Add(new Token(TokenType.COMMA, ",", null, 1));
+            }
+        }
+        tokens.AddRange(new List<Token>() {
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        });
+        var hadError = false;
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) =>
+        {
+            hadError = true;
+        });
+
+        var expr = parser.ParseOneExpr();
+
+        Assert.IsTrue(hadError);
+    }
 }

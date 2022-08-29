@@ -33,6 +33,7 @@ public class AstGenerator
                 "Logical : Expr left, Token op, Expr right",
                 "Unary : Token op, Expr right",
                 "Variable : Token name",
+                "Call : Expr callee, Token paren, List<Expr> arguments",
             })),
             ("Stmt", DefineAst("Stmt", new[]
             {

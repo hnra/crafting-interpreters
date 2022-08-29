@@ -6,6 +6,9 @@ public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 
+    public string VisitCallExpr(Call expr) =>
+        throw new NotImplementedException();
+
     public string VisitLogicalExpr(Logical expr) =>
         Parenthesize(expr.op.lexeme, expr.left, expr.right);
 

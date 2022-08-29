@@ -172,6 +172,28 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         }
     }
 
+    public object? VisitCallExpr(Call expr)
+    {
+        var callee = Evaluate(expr.callee);
+        var arguments = new List<object?>();
+        foreach (var arg in expr.arguments)
+        {
+            arguments.Add(Evaluate(arg));
+        }
+        if (callee is LoxCallable callable)
+        {
+            if (callable.Arity() != arguments.Count)
+            {
+                throw new RuntimeException(expr.paren, $"Expected {callable.Arity()} arguments but got {arguments.Count}.");
+            }
+            return callable.Call(this, arguments);
+        }
+        else
+        {
+            throw new RuntimeException(expr.paren, "Can only call functions and classes.");
+        }
+    }
+
     public object? VisitLogicalExpr(Logical expr)
     {
         var left = Evaluate(expr.left);

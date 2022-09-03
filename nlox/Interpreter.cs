@@ -37,6 +37,8 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         this.globals.Define("clock", new Clock());
     }
 
+    public Environment Globals => this.globals;
+
     public string? Interpret(Expr expr)
     {
         try
@@ -134,7 +136,9 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     public object? VisitFunctionStmt(Function stmt)
     {
-        throw new NotImplementedException();
+        var func = new LoxFunction(stmt);
+        environment.Define(stmt.name.lexeme, func);
+        return null;
     }
 
     public object? VisitWhileStmt(While stmt)
@@ -165,7 +169,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return null;
     }
 
-    void ExecuteBlock(List<Stmt> stmts, Environment environment)
+    public void ExecuteBlock(List<Stmt> stmts, Environment environment)
     {
         var prevEnv = this.environment;
         try

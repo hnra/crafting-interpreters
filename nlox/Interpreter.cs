@@ -134,6 +134,12 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         return a.Equals(b);
     }
 
+    public object? VisitReturnStmt(Return stmt)
+    {
+        var value = stmt.value == null ? null : Evaluate(stmt.value);
+        throw new ReturnException { Value = value };
+    }
+
     public object? VisitFunctionStmt(Function stmt)
     {
         var func = new LoxFunction(stmt);

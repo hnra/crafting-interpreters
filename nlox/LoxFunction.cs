@@ -11,14 +11,21 @@ public class LoxFunction : LoxCallable
         this.declaration = declaration;
     }
 
-    public object Call(Interpreter interpreter, List<object?> arguments)
+    public object? Call(Interpreter interpreter, List<object?> arguments)
     {
         var environment = new Environment(interpreter.Globals);
         for (var i = 0; i < declaration.parameters.Count; i++)
         {
             environment.Define(declaration.parameters[i].lexeme, arguments[i]);
         }
-        interpreter.ExecuteBlock(declaration.body, environment);
+        try
+        {
+            interpreter.ExecuteBlock(declaration.body, environment);
+        }
+        catch (ReturnException returnValue)
+        {
+            return returnValue.Value;
+        }
         return null;
     }
 

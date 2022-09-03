@@ -133,7 +133,19 @@ public class Parser
         {
             return ForStatement();
         }
+        if (Match(TokenType.RETURN))
+        {
+            return ReturnStatement();
+        }
         return ExpressionStatement();
+    }
+
+    Stmt ReturnStatement()
+    {
+        var keyword = Previous();
+        Expr? value = Check(TokenType.SEMICOLON) ? null : Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after return value.");
+        return new Return(keyword, value);
     }
 
     Stmt ForStatement()

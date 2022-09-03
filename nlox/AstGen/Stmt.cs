@@ -9,6 +9,7 @@ public interface StmtVisitor<R>
     R VisitVarStmt(Var stmt);
     R VisitBlockStmt(Block stmt);
     R VisitFunctionStmt(Function stmt);
+    R VisitReturnStmt(Return stmt);
 }
 
 public abstract record Stmt
@@ -49,4 +50,9 @@ public record Block(List<Stmt> statements) : Stmt
 public record Function(Token name, List<Token> parameters, List<Stmt> body) : Stmt
 {
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitFunctionStmt(this);
+}
+
+public record Return(Token keyword, Expr? value) : Stmt
+{
+    public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitReturnStmt(this);
 }

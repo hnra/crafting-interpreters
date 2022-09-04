@@ -5,15 +5,17 @@ using CraftingInterpreters.AstGen;
 public class LoxFunction : LoxCallable
 {
     readonly Function declaration;
+    readonly Environment closure;
 
-    public LoxFunction(Function declaration)
+    public LoxFunction(Function declaration, Environment closure)
     {
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     public object? Call(Interpreter interpreter, List<object?> arguments)
     {
-        var environment = new Environment(interpreter.Globals);
+        var environment = new Environment(closure);
         for (var i = 0; i < declaration.parameters.Count; i++)
         {
             environment.Define(declaration.parameters[i].lexeme, arguments[i]);

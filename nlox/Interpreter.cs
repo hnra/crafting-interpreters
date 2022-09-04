@@ -37,8 +37,6 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
         this.globals.Define("clock", new Clock());
     }
 
-    public Environment Globals => this.globals;
-
     public string? Interpret(Expr expr)
     {
         try
@@ -142,7 +140,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     public object? VisitFunctionStmt(Function stmt)
     {
-        var func = new LoxFunction(stmt);
+        var func = new LoxFunction(stmt, environment);
         environment.Define(stmt.name.lexeme, func);
         return null;
     }

@@ -20,6 +20,7 @@ public class RuntimeException : Exception
 public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 {
     readonly Environment globals = new();
+    readonly Dictionary<Expr, int> locals = new();
 
     Environment environment;
 
@@ -69,6 +70,11 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
     void Execute(Stmt stmt) => stmt.Accept(this);
 
     object? Evaluate(Expr expr) => expr.Accept(this);
+
+    public void Resolve(Expr expr, int depth)
+    {
+        locals[expr] = depth;
+    }
 
     static string Stringify(object? obj) =>
         obj switch
@@ -235,18 +241,32 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
     public object? VisitAssignExpr(Assign expr)
     {
         var value = Evaluate(expr.value);
-        environment.Assign(expr.name, value);
+        if (locals.TryGetValue(expr, out var distance))
+        {
+            environment.AssignAt(distance, expr.name, value);
+        }
+        else
+        {
+            globals.Assign(expr.name, value);
+        }
         return value;
     }
 
     public object? VisitVariableExpr(Variable expr)
     {
-        var value = environment.Get(expr.name);
-        if (value is Unassigned)
+        return LookUpVariable(expr.name, expr);
+    }
+
+    object? LookUpVariable(Token name, Expr expr)
+    {
+        if (locals.TryGetValue(expr, out var distance))
         {
-            throw new RuntimeException(expr.name, "Variable must be initialized before use.");
+            return environment.GetAt(distance, name.lexeme);
         }
-        return value;
+        else
+        {
+            return globals.Get(name);
+        }
     }
 
     public object? VisitVarStmt(Var stmt)

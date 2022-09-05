@@ -90,4 +90,35 @@ var a = 3;
         var output = lox.Run(source);
         Assert.AreEqual("5", output[0]);
     }
+
+    [Test]
+    public void FibWithoutRecursion()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+fun fib(n) {
+    var a = 1;
+    var b = 1;
+    var i = 1;
+    while (i < n) {
+        var c = a;
+        a = b;
+        b = c + a;
+        i = i + 1;
+    }
+    return b;
+}
+print fib(1);
+print fib(2);
+print fib(3);
+print fib(4);
+";
+        var output = lox.Run(source);
+        Assert.AreEqual(4, output.Count);
+        Assert.AreEqual("1", output[0]);
+        Assert.AreEqual("2", output[1]);
+        Assert.AreEqual("3", output[2]);
+        Assert.AreEqual("5", output[3]);
+    }
 }

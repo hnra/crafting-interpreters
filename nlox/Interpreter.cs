@@ -122,7 +122,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
             return;
         }
 
-        throw new RuntimeException(op, "Operands must be a numbers.");
+        throw new RuntimeException(op, $"Operands must be a numbers.");
     }
 
     static bool AreEqual(object a, object b)

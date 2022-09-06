@@ -2,11 +2,12 @@ namespace CraftingInterpreters;
 
 using CraftingInterpreters.AstGen;
 
-public sealed record Unit;
-
-public class Resolver : StmtVisitor<Unit>, ExprVisitor<Unit>
+public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 {
+    public sealed record Unit;
     enum FunctionType { NONE, FUNCTION };
+
+    #region Fields and Constructors
 
     static Unit unit = new();
     readonly Interpreter interpreter;
@@ -20,12 +21,23 @@ public class Resolver : StmtVisitor<Unit>, ExprVisitor<Unit>
         this.onError = onError;
     }
 
-    public Unit VisitBlockStmt(Block stmt)
+    #endregion
+
+    #region Methods
+
+    void ResolveFunction(Function function, FunctionType functionType)
     {
+        var enclosingFunction = currentFunction;
+        currentFunction = functionType;
         BeginScope();
-        Resolve(stmt.statements);
+        foreach (var param in function.parameters)
+        {
+            Declare(param);
+            Define(param);
+        }
+        Resolve(function.body);
         EndScope();
-        return unit;
+        currentFunction = enclosingFunction;
     }
 
     public void Resolve(List<Stmt> statements)
@@ -53,17 +65,6 @@ public class Resolver : StmtVisitor<Unit>, ExprVisitor<Unit>
         scopes.RemoveAt(scopes.Count - 1);
     }
 
-    public Unit VisitVarStmt(Var stmt)
-    {
-        Declare(stmt.name);
-        if (stmt.initializer != null)
-        {
-            Resolve(stmt.initializer);
-        }
-        Define(stmt.name);
-        return unit;
-    }
-
     void Declare(Token name)
     {
         if (scopes.Count == 0)
@@ -87,16 +88,6 @@ public class Resolver : StmtVisitor<Unit>, ExprVisitor<Unit>
         scopes.Last()[name.lexeme] = true;
     }
 
-    public Unit VisitVariableExpr(Variable expr)
-    {
-        if (scopes.Count != 0 && scopes.Last().TryGetValue(expr.name.lexeme, out var isDefined) && !isDefined)
-        {
-            onError(expr.name, "Can't read local variable in its own initializer.");
-        }
-        ResolveLocal(expr, expr.name);
-        return unit;
-    }
-
     void ResolveLocal(Expr expr, Token name)
     {
         for (var i = scopes.Count - 1; i >= 0; i--)
@@ -109,10 +100,26 @@ public class Resolver : StmtVisitor<Unit>, ExprVisitor<Unit>
         }
     }
 
-    public Unit VisitAssignExpr(Assign expr)
+    #endregion
+
+    #region StmtVisitor
+
+    public Unit VisitBlockStmt(Block stmt)
     {
-        Resolve(expr.value);
-        ResolveLocal(expr, expr.name);
+        BeginScope();
+        Resolve(stmt.statements);
+        EndScope();
+        return unit;
+    }
+
+    public Unit VisitVarStmt(Var stmt)
+    {
+        Declare(stmt.name);
+        if (stmt.initializer != null)
+        {
+            Resolve(stmt.initializer);
+        }
+        Define(stmt.name);
         return unit;
     }
 
@@ -122,21 +129,6 @@ public class Resolver : StmtVisitor<Unit>, ExprVisitor<Unit>
         Define(stmt.name);
         ResolveFunction(stmt, FunctionType.FUNCTION);
         return unit;
-    }
-
-    void ResolveFunction(Function function, FunctionType functionType)
-    {
-        var enclosingFunction = currentFunction;
-        currentFunction = functionType;
-        BeginScope();
-        foreach (var param in function.parameters)
-        {
-            Declare(param);
-            Define(param);
-        }
-        Resolve(function.body);
-        EndScope();
-        currentFunction = enclosingFunction;
     }
 
     public Unit VisitExpressionStmt(Expression stmt)
@@ -179,6 +171,27 @@ public class Resolver : StmtVisitor<Unit>, ExprVisitor<Unit>
     {
         Resolve(stmt.condition);
         Resolve(stmt.body);
+        return unit;
+    }
+
+    #endregion
+
+    #region ExprVisitor
+
+    public Unit VisitVariableExpr(Variable expr)
+    {
+        if (scopes.Count != 0 && scopes.Last().TryGetValue(expr.name.lexeme, out var isDefined) && !isDefined)
+        {
+            onError(expr.name, "Can't read local variable in its own initializer.");
+        }
+        ResolveLocal(expr, expr.name);
+        return unit;
+    }
+
+    public Unit VisitAssignExpr(Assign expr)
+    {
+        Resolve(expr.value);
+        ResolveLocal(expr, expr.name);
         return unit;
     }
 
@@ -227,4 +240,6 @@ public class Resolver : StmtVisitor<Unit>, ExprVisitor<Unit>
         Resolve(expr.ifFalse);
         return unit;
     }
+
+    #endregion
 }

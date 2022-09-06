@@ -2,12 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "nlox - interactive",
+            "name": "nlox - run source.lox",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-nlox",
             "program": "${workspaceFolder}/nlox/bin/Debug/net6.0/nlox.dll",
-            "args": [],
+            "args": [
+                "Resources/source.lox"
+            ],
             "cwd": "${workspaceFolder}/nlox",
             "console": "internalConsole",
             "stopAtEntry": false

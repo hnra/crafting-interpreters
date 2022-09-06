@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(Configuration)'=='Debug'">
+    <Content Include="Resources/*.lox" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

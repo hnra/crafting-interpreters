@@ -19,6 +19,8 @@ class TestLox
                 },
             InterpreterMode.Normal,
             (msg) => { });
+        var resolver = new Resolver(interpreter, (token, msg) => { });
+        resolver.Resolve(stmts);
         interpreter.Interpret(stmts);
         return output;
     }
@@ -73,22 +75,6 @@ print a;
         Assert.AreEqual("star", output[2]);
         Assert.AreEqual("bar", output[3]);
         Assert.AreEqual("foo", output[4]);
-    }
-
-    [Test]
-    public void ChallengeEightThree()
-    {
-
-        var lox = new TestLox();
-        var source = @"
-var a = 3;
-{
-    var a = a + 2;
-    print a;
-}
-";
-        var output = lox.Run(source);
-        Assert.AreEqual("5", output[0]);
     }
 
     [Test]

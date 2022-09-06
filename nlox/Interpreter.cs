@@ -259,14 +259,20 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
 
     object? LookUpVariable(Token name, Expr expr)
     {
+        object? variable;
         if (locals.TryGetValue(expr, out var distance))
         {
-            return environment.GetAt(distance, name.lexeme);
+            variable = environment.GetAt(distance, name.lexeme);
         }
         else
         {
-            return globals.Get(name);
+            variable = globals.Get(name);
         }
+        if (variable is Unassigned)
+        {
+            throw new RuntimeException(name, "Variable must be initialized before use.");
+        }
+        return variable;
     }
 
     public object? VisitVarStmt(Var stmt)

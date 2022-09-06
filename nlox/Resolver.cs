@@ -2,6 +2,11 @@ namespace CraftingInterpreters;
 
 using CraftingInterpreters.AstGen;
 
+public interface IResolve
+{
+    void Resolve(Expr expr, int depth);
+}
+
 public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 {
     public sealed record Unit;
@@ -10,14 +15,17 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     #region Fields and Constructors
 
     static Unit unit = new();
-    readonly Interpreter interpreter;
-    readonly List<Dictionary<string, bool>> scopes = new();
+    readonly IResolve interpreter;
+    readonly IScopeStack scopes;
+    readonly Func<IScope> createScope;
     readonly Action<Token, string> onError;
     FunctionType currentFunction = FunctionType.NONE;
 
-    public Resolver(Interpreter interpreter, Action<Token, string> onError)
+    public Resolver(IResolve interpreter, IScopeStack scopes, Func<IScope> createScope, Action<Token, string> onError)
     {
         this.interpreter = interpreter;
+        this.scopes = scopes;
+        this.createScope = createScope;
         this.onError = onError;
     }
 
@@ -58,43 +66,43 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
         expr.Accept(this);
     }
 
-    void BeginScope() => scopes.Add(new());
+    void BeginScope() => scopes.Push(createScope());
 
     void EndScope()
     {
-        scopes.RemoveAt(scopes.Count - 1);
+        scopes.Pop();
     }
 
     void Declare(Token name)
     {
-        if (scopes.Count == 0)
+        if (scopes.IsEmpty())
         {
             return;
         }
         var scope = scopes.Last();
-        if (scope.ContainsKey(name.lexeme))
+        if (scope.IsDefined(name.lexeme))
         {
             onError(name, $"Already a variable with the name '{name.lexeme}' in this scope.");
         }
-        scopes.Last()[name.lexeme] = false;
+        scopes.Last().Declare(name.lexeme);
     }
 
     void Define(Token name)
     {
-        if (scopes.Count == 0)
+        if (scopes.IsEmpty())
         {
             return;
         }
-        scopes.Last()[name.lexeme] = true;
+        scopes.Last().Define(name.lexeme);
     }
 
     void ResolveLocal(Expr expr, Token name)
     {
-        for (var i = scopes.Count - 1; i >= 0; i--)
+        for (var i = scopes.Depth - 1; i >= 0; i--)
         {
-            if (scopes[i].ContainsKey(name.lexeme))
+            if (scopes.At(i).IsDefined(name.lexeme))
             {
-                interpreter.Resolve(expr, scopes.Count - 1 - i);
+                interpreter.Resolve(expr, scopes.Depth - 1 - i);
                 return;
             }
         }
@@ -180,7 +188,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 
     public Unit VisitVariableExpr(Variable expr)
     {
-        if (scopes.Count != 0 && scopes.Last().TryGetValue(expr.name.lexeme, out var isDefined) && !isDefined)
+        if (!scopes.IsEmpty() && scopes.Last().IsDeclared(expr.name.lexeme) && !scopes.Last().IsDefined(expr.name.lexeme))
         {
             onError(expr.name, "Can't read local variable in its own initializer.");
         }

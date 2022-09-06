@@ -86,7 +86,7 @@ public static class Lox
             return;
         }
 
-        var resolver = new Resolver(interpreter, Error);
+        var resolver = new Resolver(interpreter, new ScopeStack(), Scope.Create, Error);
         resolver.Resolve(stmts);
 
         if (hadError)

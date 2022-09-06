@@ -17,7 +17,7 @@ public class RuntimeException : Exception
     }
 }
 
-public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>
+public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 {
     readonly Environment globals = new();
     readonly Dictionary<Expr, int> locals = new();

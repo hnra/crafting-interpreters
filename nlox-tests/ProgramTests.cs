@@ -19,7 +19,7 @@ class TestLox
                 },
             InterpreterMode.Normal,
             (msg) => { });
-        var resolver = new Resolver(interpreter, (token, msg) => { });
+        var resolver = new Resolver(interpreter, new ScopeStack(), Scope.Create, (token, msg) => { });
         resolver.Resolve(stmts);
         interpreter.Interpret(stmts);
         return output;

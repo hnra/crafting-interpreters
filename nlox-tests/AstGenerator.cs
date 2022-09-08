@@ -34,6 +34,8 @@ public class AstGenerator
                 "Unary : Token op, Expr right",
                 "Variable : Token name",
                 "Call : Expr callee, Token paren, List<Expr> arguments",
+                "Get : Expr obj, Token name",
+                "Set : Expr obj, Token name, Expr value"
             })),
             ("Stmt", DefineAst("Stmt", new[]
             {

@@ -146,6 +146,28 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         return null;
     }
 
+    public object? VisitGetExpr(Get expr)
+    {
+        var obj = Evaluate(expr.obj);
+        if (obj is LoxInstance loxInstance)
+        {
+            return loxInstance.Get(expr.name);
+        }
+        throw new RuntimeException(expr.name, "Only instances have properties.");
+    }
+
+    public object? VisitSetExpr(Set expr)
+    {
+        var obj = Evaluate(expr.obj);
+        if (obj is LoxInstance loxInstance)
+        {
+            var val = Evaluate(expr.value);
+            loxInstance.Set(expr.name, val);
+            return val;
+        }
+        throw new RuntimeException(expr.name, "Only instances have fields.");
+    }
+
     public object? VisitReturnStmt(Return stmt)
     {
         var value = stmt.value == null ? null : Evaluate(stmt.value);

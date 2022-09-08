@@ -276,6 +276,10 @@ public class Parser
                 var name = variable.name;
                 return new Assign(name, value);
             }
+            else if (expr is Get get)
+            {
+                return new Set(get.obj, get.name, value);
+            }
             Error(equals, "Invalid assignment target.");
         }
 
@@ -386,6 +390,11 @@ public class Parser
             if (Match(TokenType.LEFT_PAREN))
             {
                 expr = FinishCall(expr);
+            }
+            else if (Match(TokenType.DOT))
+            {
+                var name = Consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
+                expr = new Get(expr, name);
             }
             else
             {

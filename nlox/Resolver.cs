@@ -193,6 +193,19 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 
     #region ExprVisitor
 
+    public Unit VisitSetExpr(Set expr)
+    {
+        Resolve(expr.value);
+        Resolve(expr.obj);
+        return unit;
+    }
+
+    public Unit VisitGetExpr(Get expr)
+    {
+        Resolve(expr.obj);
+        return unit;
+    }
+
     public Unit VisitVariableExpr(Variable expr)
     {
         if (!scopes.IsEmpty() && scopes.Last().IsDeclared(expr.name.lexeme) && !scopes.Last().IsDefined(expr.name.lexeme))

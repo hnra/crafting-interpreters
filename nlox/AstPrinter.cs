@@ -6,6 +6,12 @@ public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 
+    public string VisitSetExpr(Set expr) =>
+        throw new NotImplementedException();
+
+    public string VisitGetExpr(Get expr) =>
+        throw new NotImplementedException();
+
     public string VisitCallExpr(Call expr) =>
         throw new NotImplementedException();
 

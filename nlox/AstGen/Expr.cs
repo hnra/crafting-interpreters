@@ -11,6 +11,8 @@ public interface ExprVisitor<R>
     R VisitUnaryExpr(Unary expr);
     R VisitVariableExpr(Variable expr);
     R VisitCallExpr(Call expr);
+    R VisitGetExpr(Get expr);
+    R VisitSetExpr(Set expr);
 }
 
 public abstract record Expr
@@ -61,4 +63,14 @@ public record Variable(Token name) : Expr
 public record Call(Expr callee, Token paren, List<Expr> arguments) : Expr
 {
     public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitCallExpr(this);
+}
+
+public record Get(Expr obj, Token name) : Expr
+{
+    public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitGetExpr(this);
+}
+
+public record Set(Expr obj, Token name, Expr value) : Expr
+{
+    public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitSetExpr(this);
 }

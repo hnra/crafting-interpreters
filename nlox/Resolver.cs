@@ -222,7 +222,9 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 
     public Unit VisitVariableExpr(Variable expr)
     {
-        if (!scopes.IsEmpty() && scopes.Last().IsDeclared(expr.name.lexeme) && !scopes.Last().IsDefined(expr.name.lexeme))
+        if (!scopes.IsEmpty() &&
+            scopes.Last().IsDeclared(expr.name.lexeme) &&
+            !scopes.Last().IsDefined(expr.name.lexeme))
         {
             onError(expr.name, "Can't read local variable in its own initializer.");
         }

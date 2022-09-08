@@ -14,15 +14,15 @@ public class Scope : IScope
     public static Scope Create() => new();
     public void Define(string variable)
     {
-        scope[variable] = false;
+        scope[variable] = true;
     }
     public void Declare(string variable)
     {
-        scope[variable] = true;
+        scope[variable] = false;
     }
-    public bool IsDefined(string variable) => scope.ContainsKey(variable);
-    public bool IsDeclared(string variable) =>
-        scope.TryGetValue(variable, out var isDeclared) && isDeclared;
+    public bool IsDeclared(string variable) => scope.ContainsKey(variable);
+    public bool IsDefined(string variable) =>
+        scope.TryGetValue(variable, out var isDefined) && isDefined;
 }
 
 public interface IScopeStack

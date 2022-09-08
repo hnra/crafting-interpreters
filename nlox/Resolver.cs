@@ -112,6 +112,13 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 
     #region StmtVisitor
 
+    public Unit VisitClassStmt(Class stmt)
+    {
+        Declare(stmt.name);
+        Define(stmt.name);
+        return unit;
+    }
+
     public Unit VisitBlockStmt(Block stmt)
     {
         BeginScope();

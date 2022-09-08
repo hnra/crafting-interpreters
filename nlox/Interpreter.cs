@@ -138,6 +138,14 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         return a.Equals(b);
     }
 
+    public object? VisitClassStmt(Class stmt)
+    {
+        environment.Define(stmt.name.lexeme, null);
+        var klass = new LoxClass(stmt.name.lexeme);
+        environment.Assign(stmt.name, klass);
+        return null;
+    }
+
     public object? VisitReturnStmt(Return stmt)
     {
         var value = stmt.value == null ? null : Evaluate(stmt.value);

@@ -44,7 +44,8 @@ public class AstGenerator
                 "Var : Token name, Expr? initializer",
                 "Block : List<Stmt> statements",
                 "Function : Token name, List<Token> parameters, List<Stmt> body",
-                "Return : Token keyword, Expr? value"
+                "Return : Token keyword, Expr? value",
+                "Class : Token name, List<Function> methods"
             }))
         };
 

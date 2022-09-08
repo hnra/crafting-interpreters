@@ -68,6 +68,10 @@ public class Parser
             {
                 return FunctionDeclaration("function");
             }
+            if (Match(TokenType.CLASS))
+            {
+                return ClassDeclaration();
+            }
             return Statement();
         }
         catch (ParseError)
@@ -75,6 +79,19 @@ public class Parser
             Synchronize();
             return null;
         }
+    }
+
+    Class ClassDeclaration()
+    {
+        var name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+        var methods = new List<Function>();
+        while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
+        {
+            methods.Add(FunctionDeclaration("method"));
+        }
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+        return new Class(name, methods);
     }
 
     Function FunctionDeclaration(string kind)

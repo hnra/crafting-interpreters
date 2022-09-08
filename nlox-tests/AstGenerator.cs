@@ -35,7 +35,8 @@ public class AstGenerator
                 "Variable : Token name",
                 "Call : Expr callee, Token paren, List<Expr> arguments",
                 "Get : Expr obj, Token name",
-                "Set : Expr obj, Token name, Expr value"
+                "Set : Expr obj, Token name, Expr value",
+                "This : Token keyword",
             })),
             ("Stmt", DefineAst("Stmt", new[]
             {

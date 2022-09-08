@@ -450,6 +450,10 @@ public class Parser
         {
             return new Variable(Previous());
         }
+        if (Match(TokenType.THIS))
+        {
+            return new This(Previous());
+        }
 
         onError(Peek(), "Expect expression.");
         throw new ParseError();

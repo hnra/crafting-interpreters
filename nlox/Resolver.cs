@@ -10,7 +10,7 @@ public interface IResolve
 public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 {
     public sealed record Unit;
-    enum FunctionType { NONE, FUNCTION };
+    enum FunctionType { NONE, FUNCTION, METHOD };
 
     #region Fields and Constructors
 
@@ -116,6 +116,14 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     {
         Declare(stmt.name);
         Define(stmt.name);
+        BeginScope();
+        scopes.Last().Declare("this");
+        foreach (var method in stmt.methods)
+        {
+            var declaration = FunctionType.METHOD;
+            ResolveFunction(method, declaration);
+        }
+        EndScope();
         return unit;
     }
 
@@ -192,6 +200,12 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     #endregion
 
     #region ExprVisitor
+
+    public Unit VisitThisExpr(This expr)
+    {
+        ResolveLocal(expr, expr.keyword);
+        return unit;
+    }
 
     public Unit VisitSetExpr(Set expr)
     {

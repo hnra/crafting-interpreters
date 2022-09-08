@@ -138,10 +138,21 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         return a.Equals(b);
     }
 
+    public object? VisitThisExpr(This expr)
+    {
+        return LookUpVariable(expr.keyword, expr);
+    }
+
     public object? VisitClassStmt(Class stmt)
     {
         environment.Define(stmt.name.lexeme, null);
-        var klass = new LoxClass(stmt.name.lexeme);
+        var methods = new Dictionary<string, LoxFunction>();
+        foreach (var method in stmt.methods)
+        {
+            var func = new LoxFunction(method, environment);
+            methods[method.name.lexeme] = func;
+        }
+        var klass = new LoxClass(stmt.name.lexeme, methods);
         environment.Assign(stmt.name, klass);
         return null;
     }

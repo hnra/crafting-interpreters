@@ -58,7 +58,7 @@ public record Return(Token keyword, Expr? value) : Stmt
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitReturnStmt(this);
 }
 
-public record Class(Token name, List<Function> methods) : Stmt
+public record Class(Token name, Variable? superclass, List<Function> methods) : Stmt
 {
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitClassStmt(this);
 }

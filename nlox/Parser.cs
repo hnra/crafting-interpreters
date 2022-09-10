@@ -84,6 +84,12 @@ public class Parser
     Class ClassDeclaration()
     {
         var name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        Variable? superclass = null;
+        if (Match(TokenType.LESS))
+        {
+            Consume(TokenType.IDENTIFIER, "Expect superclass name.");
+            superclass = new Variable(Previous());
+        }
         Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
         var methods = new List<Function>();
         while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
@@ -91,7 +97,7 @@ public class Parser
             methods.Add(FunctionDeclaration("method"));
         }
         Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
-        return new Class(name, methods);
+        return new Class(name, superclass, methods);
     }
 
     Function FunctionDeclaration(string kind)

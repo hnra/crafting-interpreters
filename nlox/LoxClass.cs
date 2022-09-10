@@ -3,6 +3,7 @@ namespace CraftingInterpreters;
 public class LoxClass : LoxCallable
 {
     readonly Dictionary<string, LoxFunction> methods;
+    readonly LoxClass? superclass;
     public string Name { get; }
 
     public object Call(Interpreter interpreter, List<object?> arguments)
@@ -22,10 +23,11 @@ public class LoxClass : LoxCallable
         return initializer?.Arity() ?? 0;
     }
 
-    public LoxClass(string name, Dictionary<string, LoxFunction> methods)
+    public LoxClass(string name, LoxClass? superclass, Dictionary<string, LoxFunction> methods)
     {
         this.Name = name;
         this.methods = methods;
+        this.superclass = superclass;
     }
 
     public LoxFunction? FindMethod(string name) =>

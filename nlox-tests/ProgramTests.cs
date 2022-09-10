@@ -4,11 +4,19 @@ using CraftingInterpreters;
 
 class TestLox
 {
+    public bool hadError = false;
+
     public List<string> Run(string source)
     {
-        var scanner = new Scanner(source, (line, msg) => { });
+        var scanner = new Scanner(source, (line, msg) =>
+        {
+            hadError = true;
+        });
         var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens, ParserMode.Normal, (tokens, msg) => { });
+        var parser = new Parser(tokens, ParserMode.Normal, (tokens, msg) =>
+        {
+            hadError = true;
+        });
         var stmts = parser.Parse();
 
         var output = new List<string>();
@@ -18,7 +26,10 @@ class TestLox
                     output.Add(msg);
                 },
             InterpreterMode.Normal,
-            (msg) => { });
+            (msg) =>
+            {
+                hadError = true;
+            });
         var resolver = new Resolver(interpreter, new ScopeStack(), Scope.Create, (token, msg) => { });
         resolver.Resolve(stmts);
         interpreter.Interpret(stmts);
@@ -154,5 +165,60 @@ print fib(4);
         Assert.AreEqual("2", output[1]);
         Assert.AreEqual("3", output[2]);
         Assert.AreEqual("5", output[3]);
+    }
+
+    [Test]
+    public void ClassCanInherit()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+class Donut { }
+class GlazedDonut < Donut { }
+var glazed = GlazedDonut();
+print glazed;
+";
+        var output = lox.Run(source);
+        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual("GlazedDonut instance", output[0]);
+    }
+
+    [Test]
+    public void ClassCannotInheritFromItself()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+class Donut < Donut { }
+";
+        var output = lox.Run(source);
+        Assert.IsTrue(lox.hadError);
+    }
+
+    [Test]
+    public void ClassCannotInheritFromVariable()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+var apa = 1;
+class Donut < apa { }
+";
+        var output = lox.Run(source);
+        Assert.IsTrue(lox.hadError);
+    }
+
+    [Test]
+    public void ClassCanInheritFromVariableWhichIsAClass()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+class Donut { }
+var apa = Donut;
+class GlazedDonut < apa { }
+";
+        var output = lox.Run(source);
+        Assert.IsFalse(lox.hadError);
     }
 }

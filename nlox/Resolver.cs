@@ -120,6 +120,14 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
         currentClass = ClassType.CLASS;
         Declare(stmt.name);
         Define(stmt.name);
+        if (stmt.superclass != null)
+        {
+            if (stmt.name.lexeme == stmt.superclass.name.lexeme)
+            {
+                onError(stmt.superclass.name, "A class can't inherit from itself.");
+            }
+            Resolve(stmt.superclass);
+        }
         BeginScope();
         scopes.Last().Define("this");
         foreach (var method in stmt.methods)

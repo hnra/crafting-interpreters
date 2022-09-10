@@ -145,6 +145,19 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 
     public object? VisitClassStmt(Class stmt)
     {
+        LoxClass? superclass = null;
+        if (stmt.superclass != null)
+        {
+            var eval = Evaluate(stmt.superclass);
+            if (eval is LoxClass loxClass)
+            {
+                superclass = loxClass;
+            }
+            else
+            {
+                throw new RuntimeException(stmt.superclass.name, "Superclass must be a class.");
+            }
+        }
         environment.Define(stmt.name.lexeme, null);
         var methods = new Dictionary<string, LoxFunction>();
         foreach (var method in stmt.methods)
@@ -152,7 +165,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
             var func = new LoxFunction(method, environment, method.name.lexeme == "init");
             methods[method.name.lexeme] = func;
         }
-        var klass = new LoxClass(stmt.name.lexeme, methods);
+        var klass = new LoxClass(stmt.name.lexeme, superclass, methods);
         environment.Assign(stmt.name, klass);
         return null;
     }

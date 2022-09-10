@@ -296,4 +296,31 @@ public class ParserTests
         Assert.IsTrue(declaration is Function);
         Assert.AreEqual(2, (declaration as Function).parameters.Count);
     }
+
+    [Test]
+    public void AssignToThisIsDisallowed()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.FUN, "fun", null, 1),
+            new Token(TokenType.IDENTIFIER, "foo", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.LEFT_BRACE, "{", null, 1),
+            new Token(TokenType.THIS, "this", null, 1),
+            new Token(TokenType.EQUAL, "=", null, 1),
+            new Token(TokenType.IDENTIFIER, "bepa", null, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.RIGHT_BRACE, "}", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var hadError = false;
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) =>
+        {
+            hadError = true;
+        });
+
+        var stmts = parser.Parse();
+
+        Assert.IsTrue(hadError);
+    }
 }

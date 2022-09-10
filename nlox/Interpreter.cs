@@ -11,7 +11,8 @@ public class RuntimeException : Exception
 {
     public readonly Token token;
 
-    public RuntimeException(Token token, string message) : base(message)
+    public RuntimeException(Token token, string message)
+        : base(message)
     {
         this.token = token;
     }
@@ -19,14 +20,15 @@ public class RuntimeException : Exception
 
 public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 {
+    #region Fields and Constructors
+
     readonly Environment globals = new();
     readonly Dictionary<Expr, int> locals = new();
-
-    Environment environment;
-
     readonly Action<string> stdout;
     readonly InterpreterMode mode;
     readonly Action<RuntimeException> onError;
+
+    Environment environment;
 
     public Interpreter(Action<string> stdout, InterpreterMode mode, Action<RuntimeException> onError)
     {
@@ -37,6 +39,10 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 
         this.globals.Define("clock", new Clock());
     }
+
+    #endregion
+
+    #region Methods
 
     public string? Interpret(Expr expr)
     {
@@ -138,10 +144,44 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         return a.Equals(b);
     }
 
-    public object? VisitThisExpr(This expr)
+    public void ExecuteBlock(List<Stmt> stmts, Environment environment)
     {
-        return LookUpVariable(expr.keyword, expr);
+        var prevEnv = this.environment;
+        try
+        {
+            this.environment = environment;
+            foreach (var stmt in stmts)
+            {
+                Execute(stmt);
+            }
+        }
+        finally
+        {
+            this.environment = prevEnv;
+        }
     }
+
+    object? LookUpVariable(Token name, Expr expr)
+    {
+        object? variable;
+        if (locals.TryGetValue(expr, out var distance))
+        {
+            variable = environment.GetAt(distance, name.lexeme);
+        }
+        else
+        {
+            variable = globals.Get(name);
+        }
+        if (variable is Unassigned)
+        {
+            throw new RuntimeException(name, "Variable must be initialized before use.");
+        }
+        return variable;
+    }
+
+    #endregion
+
+    #region StmtVisitor
 
     public object? VisitClassStmt(Class stmt)
     {
@@ -177,41 +217,6 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         }
         environment.Assign(stmt.name, klass);
         return null;
-    }
-
-    public object? VisitSuperExpr(Super expr)
-    {
-        var distance = locals[expr];
-        var val = environment.GetAt(distance, "super");
-        var obj = environment.GetAt(distance - 1, "this");
-        if (val is LoxClass superclass && obj is LoxInstance instance)
-        {
-            var method = superclass.FindMethod(expr.method.lexeme);
-            return method?.Bind(instance);
-        }
-        return null;
-    }
-
-    public object? VisitGetExpr(Get expr)
-    {
-        var obj = Evaluate(expr.obj);
-        if (obj is LoxInstance loxInstance)
-        {
-            return loxInstance.Get(expr.name);
-        }
-        throw new RuntimeException(expr.name, "Only instances have properties.");
-    }
-
-    public object? VisitSetExpr(Set expr)
-    {
-        var obj = Evaluate(expr.obj);
-        if (obj is LoxInstance loxInstance)
-        {
-            var val = Evaluate(expr.value);
-            loxInstance.Set(expr.name, val);
-            return val;
-        }
-        throw new RuntimeException(expr.name, "Only instances have fields.");
     }
 
     public object? VisitReturnStmt(Return stmt)
@@ -255,21 +260,72 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         return null;
     }
 
-    public void ExecuteBlock(List<Stmt> stmts, Environment environment)
+    public object? VisitVarStmt(Var stmt)
     {
-        var prevEnv = this.environment;
-        try
+        var val = stmt.initializer != null ? Evaluate(stmt.initializer) : Environment.unassigned;
+        environment.Define(stmt.name.lexeme, val);
+        return null;
+    }
+
+    public object? VisitPrintStmt(Print stmt)
+    {
+        var val = Evaluate(stmt.expression);
+        stdout(Stringify(val));
+        return null;
+    }
+
+    public object? VisitExpressionStmt(Expression stmt)
+    {
+        var val = Evaluate(stmt.expression);
+        if (mode == InterpreterMode.Repl)
         {
-            this.environment = environment;
-            foreach (var stmt in stmts)
-            {
-                Execute(stmt);
-            }
+            stdout(Stringify(val));
         }
-        finally
+        return null;
+    }
+
+    #endregion
+
+    #region ExprVisitor
+
+    public object? VisitThisExpr(This expr)
+    {
+        return LookUpVariable(expr.keyword, expr);
+    }
+
+    public object? VisitSuperExpr(Super expr)
+    {
+        var distance = locals[expr];
+        var val = environment.GetAt(distance, "super");
+        var obj = environment.GetAt(distance - 1, "this");
+        if (val is LoxClass superclass && obj is LoxInstance instance)
         {
-            this.environment = prevEnv;
+            var method = superclass.FindMethod(expr.method.lexeme);
+            return method?.Bind(instance);
         }
+        return null;
+    }
+
+    public object? VisitGetExpr(Get expr)
+    {
+        var obj = Evaluate(expr.obj);
+        if (obj is LoxInstance loxInstance)
+        {
+            return loxInstance.Get(expr.name);
+        }
+        throw new RuntimeException(expr.name, "Only instances have properties.");
+    }
+
+    public object? VisitSetExpr(Set expr)
+    {
+        var obj = Evaluate(expr.obj);
+        if (obj is LoxInstance loxInstance)
+        {
+            var val = Evaluate(expr.value);
+            loxInstance.Set(expr.name, val);
+            return val;
+        }
+        throw new RuntimeException(expr.name, "Only instances have fields.");
     }
 
     public object? VisitCallExpr(Call expr)
@@ -331,48 +387,6 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
     public object? VisitVariableExpr(Variable expr)
     {
         return LookUpVariable(expr.name, expr);
-    }
-
-    object? LookUpVariable(Token name, Expr expr)
-    {
-        object? variable;
-        if (locals.TryGetValue(expr, out var distance))
-        {
-            variable = environment.GetAt(distance, name.lexeme);
-        }
-        else
-        {
-            variable = globals.Get(name);
-        }
-        if (variable is Unassigned)
-        {
-            throw new RuntimeException(name, "Variable must be initialized before use.");
-        }
-        return variable;
-    }
-
-    public object? VisitVarStmt(Var stmt)
-    {
-        var val = stmt.initializer != null ? Evaluate(stmt.initializer) : Environment.unassigned;
-        environment.Define(stmt.name.lexeme, val);
-        return null;
-    }
-
-    public object? VisitPrintStmt(Print stmt)
-    {
-        var val = Evaluate(stmt.expression);
-        stdout(Stringify(val));
-        return null;
-    }
-
-    public object? VisitExpressionStmt(Expression stmt)
-    {
-        var val = Evaluate(stmt.expression);
-        if (mode == InterpreterMode.Repl)
-        {
-            stdout(Stringify(val));
-        }
-        return null;
     }
 
     public object? VisitLiteralExpr(Literal literal) => literal.value;
@@ -459,4 +473,6 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 
         return null;
     }
+
+    #endregion
 }

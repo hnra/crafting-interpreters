@@ -1,33 +1,9 @@
 namespace CraftingInterpreters;
 
-public enum TokenType
-{
-    LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
-    COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
-
-    BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL,
-    GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
-
-    IDENTIFIER, STRING, NUMBER,
-
-    AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
-    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
-
-    QUESTION, COLON,
-
-    EOF
-}
-
-public record Token(TokenType type, string lexeme, object? literal, int line)
-{
-    public override string ToString()
-    {
-        return $"{type} {lexeme} {literal}";
-    }
-}
-
 public class Scanner
 {
+    #region Fields and Constructors
+
     readonly string source;
     readonly List<Token> tokens = new List<Token>();
     readonly Action<int, string> onError;
@@ -59,6 +35,10 @@ public class Scanner
         this.source = source ?? "";
         this.onError = onError;
     }
+
+    #endregion
+
+    #region Methods
 
     public List<Token> ScanTokens()
     {
@@ -296,4 +276,6 @@ public class Scanner
     }
 
     bool IsAtEnd() => current >= source.Length;
+
+    #endregion
 }

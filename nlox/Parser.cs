@@ -7,13 +7,15 @@ public enum ParserMode
     Normal, Repl,
 }
 
-public class ParseError : Exception { }
-
 /// <summary>
 /// Recursive descent parser from <see cref="Scanner"/> output to AST.
 /// </summary>
 public class Parser
 {
+    class ParseError : Exception { }
+
+    #region Fields and Constructors
+
     readonly List<Token> tokens;
     int current = 0;
     readonly TokenType[] stmtEnds;
@@ -29,6 +31,10 @@ public class Parser
             _ => new[] { TokenType.SEMICOLON },
         };
     }
+
+    #endregion
+
+    #region Methods
 
     public List<Stmt> Parse()
     {
@@ -548,4 +554,6 @@ public class Parser
         }
         return Previous();
     }
+
+    #endregion
 }

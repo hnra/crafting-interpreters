@@ -4,6 +4,8 @@ using CraftingInterpreters.AstGen;
 
 public class LoxFunction : LoxCallable
 {
+    #region Fields and Constructors
+
     readonly Function declaration;
     readonly Environment closure;
     readonly bool isInitializer;
@@ -14,6 +16,10 @@ public class LoxFunction : LoxCallable
         this.closure = closure;
         this.isInitializer = isInitializer;
     }
+
+    #endregion
+
+    #region Methods
 
     public object? Call(Interpreter interpreter, List<object?> arguments)
     {
@@ -54,4 +60,6 @@ public class LoxFunction : LoxCallable
     {
         return $"<fn {declaration.name.lexeme}>";
     }
+
+    #endregion
 }

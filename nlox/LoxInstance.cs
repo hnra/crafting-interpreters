@@ -2,13 +2,19 @@ namespace CraftingInterpreters;
 
 public class LoxInstance
 {
-    LoxClass klass;
+    #region Fields and Constructors
+
+    readonly LoxClass klass;
     readonly Dictionary<string, object?> fields = new();
 
     public LoxInstance(LoxClass klass)
     {
         this.klass = klass;
     }
+
+    #endregion
+
+    #region Methods
 
     public object? Get(Token name)
     {
@@ -33,4 +39,6 @@ public class LoxInstance
     {
         return $"{klass.Name} instance";
     }
+
+    #endregion
 }

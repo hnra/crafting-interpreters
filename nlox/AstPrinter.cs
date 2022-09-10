@@ -7,19 +7,18 @@ public class AstPrinter : ExprVisitor<string>
     public string Print(Expr expr) => expr.Accept(this);
 
     public string VisitSuperExpr(Super expr) =>
-        throw new NotImplementedException();
+        $"super.{expr.method.lexeme}";
 
-    public string VisitThisExpr(This expr) =>
-        throw new NotImplementedException();
+    public string VisitThisExpr(This expr) => "this";
 
     public string VisitSetExpr(Set expr) =>
-        throw new NotImplementedException();
+        Parenthesize($"{expr.obj.Accept(this)}.{expr.name.lexeme}={expr.value.Accept(this)}");
 
     public string VisitGetExpr(Get expr) =>
-        throw new NotImplementedException();
+        Parenthesize($"{expr.obj.Accept(this)}.{expr.name.lexeme}");
 
     public string VisitCallExpr(Call expr) =>
-        throw new NotImplementedException();
+        Parenthesize(expr.callee.Accept(this), expr.arguments.ToArray());
 
     public string VisitLogicalExpr(Logical expr) =>
         Parenthesize(expr.op.lexeme, expr.left, expr.right);

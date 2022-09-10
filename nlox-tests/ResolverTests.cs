@@ -46,4 +46,16 @@ var a = 44;
         resolver.Resolve(stmts);
         Assert.IsTrue(hadError());
     }
+
+    [Test]
+    public void CannotUseThisInGlobalScope()
+    {
+        var source = @"
+this.apa = 44;
+";
+        var stmts = TestUtilties.ParseStmts(source);
+        var (resolver, hadError) = CreateResolver(null);
+        resolver.Resolve(stmts);
+        Assert.IsTrue(hadError());
+    }
 }

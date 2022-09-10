@@ -11,6 +11,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 {
     public sealed record Unit;
     enum FunctionType { NONE, FUNCTION, METHOD };
+    enum ClassType { NONE, CLASS };
 
     #region Fields and Constructors
 
@@ -20,6 +21,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     readonly Func<IScope> createScope;
     readonly Action<Token, string> onError;
     FunctionType currentFunction = FunctionType.NONE;
+    ClassType currentClass = ClassType.NONE;
 
     public Resolver(IResolve interpreter, IScopeStack scopes, Func<IScope> createScope, Action<Token, string> onError)
     {
@@ -114,6 +116,8 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 
     public Unit VisitClassStmt(Class stmt)
     {
+        var enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
         Declare(stmt.name);
         Define(stmt.name);
         BeginScope();
@@ -124,6 +128,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
             ResolveFunction(method, declaration);
         }
         EndScope();
+        currentClass = enclosingClass;
         return unit;
     }
 
@@ -203,6 +208,10 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 
     public Unit VisitThisExpr(This expr)
     {
+        if (currentClass == ClassType.NONE)
+        {
+            onError(expr.keyword, "Can't use 'this' outside of a class.");
+        }
         ResolveLocal(expr, expr.keyword);
         return unit;
     }

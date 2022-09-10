@@ -72,4 +72,32 @@ fun foo() {
         resolver.Resolve(stmts);
         Assert.IsTrue(hadError());
     }
+
+    [Test]
+    public void CannotUseSuperWithoutSuperclass()
+    {
+        var source = @"
+class Eclair {
+    cook() {
+        super.cook();
+    }
+}
+";
+        var stmts = TestUtilties.ParseStmts(source);
+        var (resolver, hadError) = CreateResolver(null);
+        resolver.Resolve(stmts);
+        Assert.IsTrue(hadError());
+    }
+
+    [Test]
+    public void CannotUseSuperOutsideOfClass()
+    {
+        var source = @"
+super.notEvenInAClass();
+";
+        var stmts = TestUtilties.ParseStmts(source);
+        var (resolver, hadError) = CreateResolver(null);
+        resolver.Resolve(stmts);
+        Assert.IsTrue(hadError());
+    }
 }

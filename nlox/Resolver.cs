@@ -11,7 +11,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 {
     public sealed record Unit;
     enum FunctionType { NONE, FUNCTION, METHOD, INITIALIZER };
-    enum ClassType { NONE, CLASS };
+    enum ClassType { NONE, CLASS, SUBCLASS };
 
     #region Fields and Constructors
 
@@ -126,6 +126,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
             {
                 onError(stmt.superclass.name, "A class can't inherit from itself.");
             }
+            currentClass = ClassType.SUBCLASS;
             Resolve(stmt.superclass);
             BeginScope();
             scopes.Last().Define("super");
@@ -230,6 +231,14 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 
     public Unit VisitSuperExpr(Super expr)
     {
+        if (currentClass == ClassType.NONE)
+        {
+            onError(expr.keyword, "Can't use 'super' outside of a class.");
+        }
+        if (currentClass == ClassType.CLASS)
+        {
+            onError(expr.keyword, "Can't use 'super' in a class without no superclass.");
+        }
         ResolveLocal(expr, expr.keyword);
         return unit;
     }

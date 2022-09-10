@@ -36,7 +36,7 @@ public static class Lox
         }
         else
         {
-            RunPrompt();
+            Repl.Run();
         }
     }
 
@@ -53,24 +53,6 @@ public static class Lox
         if (hadRuntimeError)
         {
             System.Environment.Exit(70);
-        }
-    }
-
-    public static void RunPrompt()
-    {
-        var interpreter = new Interpreter(StdOut, InterpreterMode.Repl, RuntimeError);
-        while (true)
-        {
-            Console.Write("> ");
-            var line = Console.ReadLine();
-
-            if (line == null)
-            {
-                break;
-            }
-
-            Run(line, ParserMode.Repl, interpreter);
-            hadError = false;
         }
     }
 

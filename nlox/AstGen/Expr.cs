@@ -14,6 +14,7 @@ public interface ExprVisitor<R>
     R VisitGetExpr(Get expr);
     R VisitSetExpr(Set expr);
     R VisitThisExpr(This expr);
+    R VisitSuperExpr(Super expr);
 }
 
 public abstract record Expr
@@ -79,4 +80,9 @@ public record Set(Expr obj, Token name, Expr value) : Expr
 public record This(Token keyword) : Expr
 {
     public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitThisExpr(this);
+}
+
+public record Super(Token keyword, Token method) : Expr
+{
+    public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitSuperExpr(this);
 }

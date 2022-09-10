@@ -241,4 +241,30 @@ glazed.cook();
         Assert.AreEqual(1, output.Count);
         Assert.AreEqual("Fry until golden brown.", output[0]);
     }
+
+    [Test]
+    public void CanReferToSuperclass()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+class Donut {
+    cook() {
+        print ""Fry until golden brown."";
+    }
+}
+class GlazedDonut < Donut { 
+    cook() {
+        super.cook();
+        print ""Cover in glaze."";
+    }
+}
+var glazed = GlazedDonut();
+glazed.cook();
+";
+        var output = lox.Run(source);
+        Assert.AreEqual(2, output.Count);
+        Assert.AreEqual("Fry until golden brown.", output[0]);
+        Assert.AreEqual("Cover in glaze.", output[1]);
+    }
 }

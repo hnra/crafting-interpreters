@@ -159,6 +159,11 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
             }
         }
         environment.Define(stmt.name.lexeme, null);
+        if (stmt.superclass != null)
+        {
+            environment = new Environment(environment);
+            environment.Define("super", superclass);
+        }
         var methods = new Dictionary<string, LoxFunction>();
         foreach (var method in stmt.methods)
         {
@@ -166,7 +171,24 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
             methods[method.name.lexeme] = func;
         }
         var klass = new LoxClass(stmt.name.lexeme, superclass, methods);
+        if (superclass != null && environment.enclosing != null)
+        {
+            environment = environment.enclosing;
+        }
         environment.Assign(stmt.name, klass);
+        return null;
+    }
+
+    public object? VisitSuperExpr(Super expr)
+    {
+        var distance = locals[expr];
+        var val = environment.GetAt(distance, "super");
+        var obj = environment.GetAt(distance - 1, "this");
+        if (val is LoxClass superclass && obj is LoxInstance instance)
+        {
+            var method = superclass.FindMethod(expr.method.lexeme);
+            return method?.Bind(instance);
+        }
         return null;
     }
 

@@ -7,7 +7,7 @@ public class Environment
     public static readonly Unassigned unassigned = new();
 
     readonly Dictionary<string, object?> values = new();
-    readonly Environment? enclosing = null;
+    public readonly Environment? enclosing = null;
 
     public Environment() { }
 

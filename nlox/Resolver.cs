@@ -127,6 +127,8 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
                 onError(stmt.superclass.name, "A class can't inherit from itself.");
             }
             Resolve(stmt.superclass);
+            BeginScope();
+            scopes.Last().Define("super");
         }
         BeginScope();
         scopes.Last().Define("this");
@@ -140,6 +142,10 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
             ResolveFunction(method, declaration);
         }
         EndScope();
+        if (stmt.superclass != null)
+        {
+            EndScope();
+        }
         currentClass = enclosingClass;
         return unit;
     }
@@ -221,6 +227,12 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     #endregion
 
     #region ExprVisitor
+
+    public Unit VisitSuperExpr(Super expr)
+    {
+        ResolveLocal(expr, expr.keyword);
+        return unit;
+    }
 
     public Unit VisitThisExpr(This expr)
     {

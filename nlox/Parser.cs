@@ -460,6 +460,13 @@ public class Parser
         {
             return new This(Previous());
         }
+        if (Match(TokenType.SUPER))
+        {
+            var keyword = Previous();
+            Consume(TokenType.DOT, "Expect '.' after 'super'.");
+            var method = Consume(TokenType.IDENTIFIER, "Expect superclass method name.");
+            return new Super(keyword, method);
+        }
 
         onError(Peek(), "Expect expression.");
         throw new ParseError();

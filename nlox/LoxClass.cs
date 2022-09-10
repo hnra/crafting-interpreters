@@ -30,8 +30,18 @@ public class LoxClass : LoxCallable
         this.superclass = superclass;
     }
 
-    public LoxFunction? FindMethod(string name) =>
-        methods.GetValueOrDefault(name);
+    public LoxFunction? FindMethod(string name)
+    {
+        if (methods.ContainsKey(name))
+        {
+            return methods[name];
+        }
+        if (superclass != null)
+        {
+            return superclass.FindMethod(name);
+        }
+        return null;
+    }
 
     public override string ToString() => Name;
 }

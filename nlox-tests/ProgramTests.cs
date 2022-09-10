@@ -221,4 +221,24 @@ class GlazedDonut < apa { }
         var output = lox.Run(source);
         Assert.IsFalse(lox.hadError);
     }
+
+    [Test]
+    public void MethodsAreInherited()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+class Donut {
+    cook() {
+        print ""Fry until golden brown."";
+    }
+}
+class GlazedDonut < Donut { }
+var glazed = GlazedDonut();
+glazed.cook();
+";
+        var output = lox.Run(source);
+        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual("Fry until golden brown.", output[0]);
+    }
 }

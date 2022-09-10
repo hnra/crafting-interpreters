@@ -149,7 +149,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         var methods = new Dictionary<string, LoxFunction>();
         foreach (var method in stmt.methods)
         {
-            var func = new LoxFunction(method, environment);
+            var func = new LoxFunction(method, environment, method.name.lexeme == "init");
             methods[method.name.lexeme] = func;
         }
         var klass = new LoxClass(stmt.name.lexeme, methods);
@@ -187,7 +187,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 
     public object? VisitFunctionStmt(Function stmt)
     {
-        var func = new LoxFunction(stmt, environment);
+        var func = new LoxFunction(stmt, environment, false);
         environment.Define(stmt.name.lexeme, func);
         return null;
     }

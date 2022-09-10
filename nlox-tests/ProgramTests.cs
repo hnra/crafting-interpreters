@@ -78,6 +78,54 @@ print a;
     }
 
     [Test]
+    public void ClassInitializer()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+class Henrik {
+    init(lastname, age) {
+        this.lastname = lastname;
+        this.age = age;
+    }
+}
+var henrik = Henrik(""Andersson"", 26);
+print henrik.lastname;
+print henrik.age;
+";
+        var output = lox.Run(source);
+        Assert.AreEqual(2, output.Count);
+        Assert.AreEqual("Andersson", output[0]);
+        Assert.AreEqual("26", output[1]);
+    }
+
+    [Test]
+    public void CanReturnEmptyFromInitializer()
+    {
+
+        var lox = new TestLox();
+        var source = @"
+class Foo {
+    init(shouldInit) {
+        this.hasInited = false;
+        if (!shouldInit) {
+            return;
+        }
+        this.hasInited = true;
+    }
+}
+var foo = Foo(false);
+print foo.hasInited;
+var foo2 = Foo(true);
+print foo2.hasInited;
+";
+        var output = lox.Run(source);
+        Assert.AreEqual(2, output.Count);
+        Assert.AreEqual("false", output[0]);
+        Assert.AreEqual("true", output[1]);
+    }
+
+    [Test]
     public void FibWithoutRecursion()
     {
 

@@ -10,7 +10,7 @@ public interface IResolve
 public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 {
     public sealed record Unit;
-    enum FunctionType { NONE, FUNCTION, METHOD };
+    enum FunctionType { NONE, FUNCTION, METHOD, INITIALIZER };
     enum ClassType { NONE, CLASS };
 
     #region Fields and Constructors
@@ -121,10 +121,14 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
         Declare(stmt.name);
         Define(stmt.name);
         BeginScope();
-        scopes.Last().Declare("this");
+        scopes.Last().Define("this");
         foreach (var method in stmt.methods)
         {
             var declaration = FunctionType.METHOD;
+            if (method.name.lexeme == "this")
+            {
+                declaration = FunctionType.INITIALIZER;
+            }
             ResolveFunction(method, declaration);
         }
         EndScope();
@@ -187,6 +191,10 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
         if (currentFunction == FunctionType.NONE)
         {
             onError(stmt.keyword, "Can't return from top-level code.");
+        }
+        if (currentFunction == FunctionType.INITIALIZER)
+        {
+            onError(stmt.keyword, "Ca't return a value from an initializer.");
         }
         if (stmt.value != null)
         {

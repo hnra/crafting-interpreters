@@ -22,11 +22,15 @@ public static class Repl
         return scanner;
     }
 
-    static Parser CreateParser(List<Token> tokens) =>
-        new Parser(tokens, (token, msg) =>
+    static Parser CreateParser(List<Token> tokens)
+    {
+        var parser = new Parser(tokens);
+        parser.OnError += (token, msg) =>
         {
             Console.Error.WriteLine($"Parser error: {msg}");
-        });
+        };
+        return parser;
+    }
 
     static void Run(Source source)
     {

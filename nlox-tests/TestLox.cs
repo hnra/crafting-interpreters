@@ -14,10 +14,11 @@ class TestLox
             hadError = true;
         };
         var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens, (tokens, msg) =>
+        var parser = new Parser(tokens);
+        parser.OnError += (tokens, msg) =>
         {
             hadError = true;
-        });
+        };
         var stmts = parser.Parse();
 
         var output = new List<string>();

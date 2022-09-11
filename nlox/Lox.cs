@@ -61,7 +61,8 @@ public static class Lox
         var scanner = new Scanner(source);
         scanner.onError += Error;
         var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens, Error);
+        var parser = new Parser(tokens);
+        parser.OnError += Error;
         var stmts = parser.Parse();
 
         if (hadError)

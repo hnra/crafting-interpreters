@@ -18,7 +18,7 @@ public static class TestUtilties
     public static List<Stmt> ParseStmts(string source)
     {
         var scanner = new Scanner(source);
-        var parser = new Parser(scanner.ScanTokens(), (token, msg) => { });
+        var parser = new Parser(scanner.ScanTokens());
         return parser.Parse();
     }
 }

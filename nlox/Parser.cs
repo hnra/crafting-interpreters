@@ -8,17 +8,17 @@ using AstGen;
 public class Parser
 {
     class ParseError : Exception { }
+    public delegate void ErrorHandler(Token token, string message);
+    public ErrorHandler? OnError;
 
     #region Fields and Constructors
 
     readonly List<Token> tokens;
     int current = 0;
-    Action<Token, string> onError;
 
-    public Parser(List<Token> tokens, Action<Token, string> onError)
+    public Parser(List<Token> tokens)
     {
         this.tokens = tokens;
-        this.onError = onError;
     }
 
     #endregion
@@ -63,7 +63,7 @@ public class Parser
                 var importPath = Path.GetFullPath(pathStr);
                 if (!File.Exists(importPath))
                 {
-                    onError(pathToken, "Import failed: cannot find file '{importPath}'");
+                    OnError?.Invoke(pathToken, "Import failed: cannot find file '{importPath}'");
                     throw new ParseError();
                 }
                 var fileContents = File.ReadAllText(importPath);
@@ -72,7 +72,7 @@ public class Parser
                 scanner.onError += (line, msg) =>
                 {
                     hadScannerError = true;
-                    onError(pathToken, $"Import failed ('{importPath}'[line: {line}]): {msg}");
+                    OnError?.Invoke(pathToken, $"Import failed ('{importPath}'[line: {line}]): {msg}");
                 };
                 var importedTokens = scanner.ScanTokens();
                 if (hadScannerError)
@@ -520,7 +520,7 @@ public class Parser
             return new Super(keyword, method);
         }
 
-        onError(Peek(), "Expect expression.");
+        OnError?.Invoke(Peek(), "Expect expression.");
         throw new ParseError();
     }
 
@@ -546,7 +546,7 @@ public class Parser
 
     ParseError Error(Token token, string message)
     {
-        onError(token, message);
+        OnError?.Invoke(token, message);
         return new ParseError();
     }
 

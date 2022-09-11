@@ -8,10 +8,11 @@ class TestLox
 
     public List<string> Run(string source)
     {
-        var scanner = new Scanner(source, (line, msg) =>
+        var scanner = new Scanner(source);
+        scanner.onError += (line, msg) =>
         {
             hadError = true;
-        });
+        };
         var tokens = scanner.ScanTokens();
         var parser = new Parser(tokens, (tokens, msg) =>
         {

@@ -2,11 +2,13 @@ namespace CraftingInterpreters;
 
 public class Scanner
 {
+    public delegate void ErrorHandler(int line, string message);
+    public event ErrorHandler? onError;
+
     #region Fields and Constructors
 
     readonly string source;
     readonly List<Token> tokens = new List<Token>();
-    readonly Action<int, string> onError;
     int start = 0;
     int current = 0;
     int line = 1;
@@ -31,15 +33,19 @@ public class Scanner
         {"import", TokenType.IMPORT},
     };
 
-    public Scanner(string source, Action<int, string> onError)
+    public Scanner(string source)
     {
         this.source = source ?? "";
-        this.onError = onError;
     }
 
     #endregion
 
     #region Methods
+
+    void OnError(int line, string message)
+    {
+        onError?.Invoke(line, message);
+    }
 
     public List<Token> ScanTokens()
     {
@@ -129,7 +135,7 @@ public class Scanner
                 {
                     return ParseIdentifier();
                 }
-                onError(line, $"Unexpected character '{c}'.");
+                OnError(line, $"Unexpected character '{c}'.");
                 return null;
         }
     }
@@ -176,7 +182,7 @@ public class Scanner
 
         if (depth > 0)
         {
-            onError(line, "Unterminated block comment.");
+            OnError(line, "Unterminated block comment.");
         }
 
         return null;
@@ -240,7 +246,7 @@ public class Scanner
 
         if (IsAtEnd())
         {
-            onError(line, "Unterminated string.");
+            OnError(line, "Unterminated string.");
             return null;
         }
 

@@ -12,11 +12,15 @@ public static class Repl
             Console.Error.WriteLine($"Runtime error: {error}");
         });
 
-    static Scanner CreateScanner(string source) =>
-        new Scanner(source, (line, msg) =>
+    static Scanner CreateScanner(string source)
+    {
+        var scanner = new Scanner(source);
+        scanner.onError += (line, msg) =>
         {
             Console.Error.WriteLine($"Scanner error: {msg}");
-        });
+        };
+        return scanner;
+    }
 
     static Parser CreateParser(List<Token> tokens) =>
         new Parser(tokens, (token, msg) =>

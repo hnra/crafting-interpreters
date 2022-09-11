@@ -68,11 +68,12 @@ public class Parser
                 }
                 var fileContents = File.ReadAllText(importPath);
                 var hadScannerError = false;
-                var scanner = new Scanner(fileContents, (line, msg) =>
+                var scanner = new Scanner(fileContents);
+                scanner.onError += (line, msg) =>
                 {
                     hadScannerError = true;
                     onError(pathToken, $"Import failed ('{importPath}'[line: {line}]): {msg}");
-                });
+                };
                 var importedTokens = scanner.ScanTokens();
                 if (hadScannerError)
                 {

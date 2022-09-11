@@ -4,7 +4,7 @@ using CraftingInterpreters;
 
 public class ScannerTests
 {
-    Scanner Create(string source) => new Scanner(source, (line, msg) => { });
+    Scanner Create(string source) => new Scanner(source);
 
     [Test]
     public void UnterminatedStringIsNotAToken()

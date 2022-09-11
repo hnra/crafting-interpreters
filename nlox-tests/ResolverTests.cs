@@ -25,10 +25,11 @@ public class ResolverTests
     static (Resolver Resolver, Func<bool> hadError) CreateResolver(Action<Expr, int>? onResolve)
     {
         var hadError = false;
-        var resolver = new Resolver(new MockResolve(), new ScopeStack(), Scope.Create, (token, msg) =>
+        var resolver = new Resolver(new MockResolve(), new ScopeStack(), Scope.Create);
+        resolver.OnError += (token, msg) =>
         {
             hadError = true;
-        });
+        };
         return (resolver, () => hadError);
     }
 

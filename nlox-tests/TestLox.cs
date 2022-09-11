@@ -31,10 +31,11 @@ class TestLox
         {
             hadError = true;
         };
-        var resolver = new Resolver(interpreter, new ScopeStack(), Scope.Create, (token, msg) =>
+        var resolver = new Resolver(interpreter, new ScopeStack(), Scope.Create);
+        resolver.OnError += (token, msg) =>
         {
             hadError = true;
-        });
+        };
         resolver.Resolve(stmts);
         interpreter.Interpret(stmts);
         return output;

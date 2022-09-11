@@ -59,10 +59,11 @@ public static class Repl
 
     static void Run(List<Stmt> stmts)
     {
-        var resolver = new Resolver(interpreter, new ScopeStack(), () => new Scope(), (token, msg) =>
+        var resolver = new Resolver(interpreter, new ScopeStack(), () => new Scope());
+        resolver.OnError += (token, msg) =>
         {
             Console.Error.WriteLine($"Resolver error: {msg}");
-        });
+        };
         resolver.Resolve(stmts);
         interpreter.Interpret(stmts);
     }

@@ -13,22 +13,23 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     enum FunctionType { NONE, FUNCTION, METHOD, INITIALIZER };
     enum ClassType { NONE, CLASS, SUBCLASS };
 
+    public delegate void ErrorHandler(Token token, string message);
+    public event ErrorHandler? OnError;
+
     #region Fields and Constructors
 
     static Unit unit = new();
     readonly IResolve interpreter;
     readonly IScopeStack scopes;
     readonly Func<IScope> createScope;
-    readonly Action<Token, string> onError;
     FunctionType currentFunction = FunctionType.NONE;
     ClassType currentClass = ClassType.NONE;
 
-    public Resolver(IResolve interpreter, IScopeStack scopes, Func<IScope> createScope, Action<Token, string> onError)
+    public Resolver(IResolve interpreter, IScopeStack scopes, Func<IScope> createScope)
     {
         this.interpreter = interpreter;
         this.scopes = scopes;
         this.createScope = createScope;
-        this.onError = onError;
     }
 
     #endregion
@@ -84,7 +85,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
         var scope = scopes.Last();
         if (scope.IsDefined(name.lexeme))
         {
-            onError(name, $"Already a variable with the name '{name.lexeme}' in this scope.");
+            OnError?.Invoke(name, $"Already a variable with the name '{name.lexeme}' in this scope.");
         }
         scopes.Last().Declare(name.lexeme);
     }
@@ -124,7 +125,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
         {
             if (stmt.name.lexeme == stmt.superclass.name.lexeme)
             {
-                onError(stmt.superclass.name, "A class can't inherit from itself.");
+                OnError?.Invoke(stmt.superclass.name, "A class can't inherit from itself.");
             }
             currentClass = ClassType.SUBCLASS;
             Resolve(stmt.superclass);
@@ -205,11 +206,11 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     {
         if (currentFunction == FunctionType.NONE)
         {
-            onError(stmt.keyword, "Can't return from top-level code.");
+            OnError?.Invoke(stmt.keyword, "Can't return from top-level code.");
         }
         if (currentFunction == FunctionType.INITIALIZER)
         {
-            onError(stmt.keyword, "Ca't return a value from an initializer.");
+            OnError?.Invoke(stmt.keyword, "Ca't return a value from an initializer.");
         }
         if (stmt.value != null)
         {
@@ -233,11 +234,11 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     {
         if (currentClass == ClassType.NONE)
         {
-            onError(expr.keyword, "Can't use 'super' outside of a class.");
+            OnError?.Invoke(expr.keyword, "Can't use 'super' outside of a class.");
         }
         if (currentClass == ClassType.CLASS)
         {
-            onError(expr.keyword, "Can't use 'super' in a class without no superclass.");
+            OnError?.Invoke(expr.keyword, "Can't use 'super' in a class without no superclass.");
         }
         ResolveLocal(expr, expr.keyword);
         return unit;
@@ -247,7 +248,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
     {
         if (currentClass == ClassType.NONE)
         {
-            onError(expr.keyword, "Can't use 'this' outside of a class.");
+            OnError?.Invoke(expr.keyword, "Can't use 'this' outside of a class.");
         }
         ResolveLocal(expr, expr.keyword);
         return unit;
@@ -272,7 +273,7 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
             scopes.Last().IsDeclared(expr.name.lexeme) &&
             !scopes.Last().IsDefined(expr.name.lexeme))
         {
-            onError(expr.name, "Can't read local variable in its own initializer.");
+            OnError?.Invoke(expr.name, "Can't read local variable in its own initializer.");
         }
         ResolveLocal(expr, expr.name);
         return unit;

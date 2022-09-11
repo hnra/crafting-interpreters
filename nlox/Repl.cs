@@ -204,8 +204,11 @@ public static class Repl
             switch (key.ResultType)
             {
                 case KeyResultType.Character:
-                    str.Write(key.KeyChar);
-                    Console.Write(key.KeyChar);
+                    if (!string.IsNullOrEmpty(key.KeyChar))
+                    {
+                        str.Write(key.KeyChar);
+                        Console.Write(key.KeyChar);
+                    }
                     break;
                 case KeyResultType.Delete:
                     var soFar = str.ToString();
@@ -273,7 +276,7 @@ public static class Repl
         {
             if (!Console.KeyAvailable)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(10);
                 continue;
             }
 

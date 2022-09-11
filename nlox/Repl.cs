@@ -32,6 +32,11 @@ public static class Repl
 
     static Parser CreateParser(List<Token> tokens)
     {
+        if (tokens.Count > 1)
+        {
+            var lastToken = tokens[^1];
+            tokens.Insert(tokens.Count - 1, new Token(TokenType.SEMICOLON, ";", null, lastToken.line));
+        }
         var parser = new Parser(tokens);
         parser.OnError += (token, msg) =>
         {

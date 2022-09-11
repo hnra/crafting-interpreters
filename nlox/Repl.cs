@@ -71,6 +71,14 @@ public static class Repl
         };
         resolver.Resolve(stmts);
         interpreter.Interpret(stmts);
+
+        if (stmts.Count > 0 &&
+            stmts[^1] is Expression expr &&
+            !(expr.expression is Assign) &&
+            interpreter.LastEval != null)
+        {
+            Console.WriteLine(interpreter.LastEval);
+        }
     }
 
     public static void Run(params string[] args)

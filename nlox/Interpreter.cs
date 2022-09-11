@@ -20,10 +20,13 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
     public delegate void StdOutHandler(string str);
     public event StdOutHandler? OnStdOut;
 
+    public object? LastEval => lastEval;
+
     #region Fields and Constructors
 
     readonly Environment globals = new();
     readonly Dictionary<Expr, int> locals = new();
+    object? lastEval = null;
 
     Environment environment;
 
@@ -69,7 +72,11 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 
     void Execute(Stmt stmt) => stmt.Accept(this);
 
-    object? Evaluate(Expr expr) => expr.Accept(this);
+    object? Evaluate(Expr expr)
+    {
+        lastEval = expr.Accept(this);
+        return lastEval;
+    }
 
     public void Resolve(Expr expr, int depth)
     {

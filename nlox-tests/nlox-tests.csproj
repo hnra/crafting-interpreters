@@ -21,4 +21,9 @@
     <ProjectReference Include="../nlox/nlox.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="TestFiles/*.lox" />
+    <Content Include="TestFiles/*.lox" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

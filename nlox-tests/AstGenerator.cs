@@ -49,7 +49,8 @@ public class AstGenerator
                 "Block : List<Stmt> statements",
                 "Function : Token name, List<Token> parameters, List<Stmt> body",
                 "Return : Token keyword, Expr? value",
-                "Class : Token name, Variable? superclass, List<Function> methods"
+                "Class : Token name, Variable? superclass, List<Function> methods",
+                // "Import : Token importPath"
             }))
         };
 

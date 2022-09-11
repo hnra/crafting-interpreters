@@ -93,4 +93,14 @@ public class ScannerTests
         Assert.AreEqual(TokenType.COLON, tokens[3].type);
         Assert.AreEqual(TokenType.IDENTIFIER, tokens[4].type);
     }
+
+    [Test]
+    public void ScansImport()
+    {
+        var scanner = Create("import \"./path/to/file.lox\";");
+        var tokens = scanner.ScanTokens();
+
+        Assert.AreEqual(TokenType.IMPORT, tokens[0].type);
+        Assert.AreEqual(TokenType.STRING, tokens[1].type);
+    }
 }

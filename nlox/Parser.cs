@@ -41,6 +41,18 @@ public class Parser
         var stmts = new List<Stmt>();
         while (!IsAtEnd())
         {
+            if (Match(TokenType.IMPORT))
+            {
+                try
+                {
+                    ImportPath();
+                }
+                catch (ParseError)
+                {
+                    Synchronize();
+                }
+                continue;
+            }
             var decl = Declaration();
             if (decl != null)
             {
@@ -48,6 +60,50 @@ public class Parser
             }
         }
         return stmts;
+    }
+
+    public void ImportPath()
+    {
+        var pathToken = Consume(TokenType.STRING, "Expected string path after import statement.");
+        Consume(TokenType.SEMICOLON, "Expected ';' after import path.");
+
+        if (pathToken.literal is string pathStr)
+        {
+            try
+            {
+                var importPath = Path.GetFullPath(pathStr);
+                if (!File.Exists(importPath))
+                {
+                    onError(pathToken, "Import failed: cannot find file '{importPath}'");
+                    throw new ParseError();
+                }
+                var fileContents = File.ReadAllText(importPath);
+                var hadScannerError = false;
+                var scanner = new Scanner(fileContents, (line, msg) =>
+                {
+                    hadScannerError = true;
+                    onError(pathToken, $"Import failed ('{importPath}'[line: {line}]): {msg}");
+                });
+                var importedTokens = scanner.ScanTokens();
+                if (hadScannerError)
+                {
+                    throw new ParseError();
+                }
+                if (importedTokens.Count > 0 && importedTokens[^1].type == TokenType.EOF)
+                {
+                    importedTokens.RemoveAt(importedTokens.Count - 1);
+                }
+                tokens.InsertRange(current, importedTokens);
+            }
+            catch (ParseError)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new ParseError();
+            }
+        }
     }
 
     public Expr? ParseOneExpr()

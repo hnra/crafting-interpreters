@@ -2,41 +2,6 @@ namespace nlox_tests;
 
 using CraftingInterpreters;
 
-class TestLox
-{
-    public bool hadError = false;
-
-    public List<string> Run(string source)
-    {
-        var scanner = new Scanner(source, (line, msg) =>
-        {
-            hadError = true;
-        });
-        var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens, ParserMode.Normal, (tokens, msg) =>
-        {
-            hadError = true;
-        });
-        var stmts = parser.Parse();
-
-        var output = new List<string>();
-        var interpreter = new Interpreter(
-            (msg) =>
-                {
-                    output.Add(msg);
-                },
-            InterpreterMode.Normal,
-            (msg) =>
-            {
-                hadError = true;
-            });
-        var resolver = new Resolver(interpreter, new ScopeStack(), Scope.Create, (token, msg) => { });
-        resolver.Resolve(stmts);
-        interpreter.Interpret(stmts);
-        return output;
-    }
-}
-
 public class ProgramTests
 {
     [Test]

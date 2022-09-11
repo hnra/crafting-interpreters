@@ -323,4 +323,43 @@ public class ParserTests
 
         Assert.IsTrue(hadError);
     }
+
+    [Test]
+    public void CanParseImportStmt()
+    {
+        var helloLib = TestUtilties.GetTestFilePath("hello-lib.lox");
+        var tokens = new List<Token> {
+            new Token(TokenType.IMPORT, "import", null, 1),
+            new Token(TokenType.STRING, $"\"{helloLib}\"", helloLib, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+
+        var stmts = parser.Parse();
+
+        Assert.AreEqual(1, stmts.Count);
+        Assert.IsTrue(stmts[0] is Function);
+    }
+
+    [Test]
+    public void ImportMissingFileFails()
+    {
+        string badPath = $"./{Guid.NewGuid()}.lox";
+        var tokens = new List<Token> {
+            new Token(TokenType.IMPORT, "import", null, 1),
+            new Token(TokenType.STRING, $"\"{badPath}\"", badPath, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var hasFailed = false;
+        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) =>
+        {
+            hasFailed = true;
+        });
+
+        var stmts = parser.Parse();
+
+        Assert.IsTrue(hasFailed);
+    }
 }

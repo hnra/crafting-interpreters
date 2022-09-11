@@ -28,6 +28,7 @@ public class Scanner
         {"true", TokenType.TRUE},
         {"var", TokenType.VAR},
         {"while", TokenType.WHILE},
+        {"import", TokenType.IMPORT},
     };
 
     public Scanner(string source, Action<int, string> onError)

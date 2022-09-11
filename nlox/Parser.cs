@@ -28,7 +28,7 @@ public class Parser
     public List<Stmt> Parse()
     {
         var stmts = new List<Stmt>();
-        while (!IsAtEnd())
+        while (!IsAtEndAndSkipSemicolons())
         {
             if (Match(TokenType.IMPORT))
             {
@@ -599,6 +599,12 @@ public class Parser
             current++;
         }
         return Previous();
+    }
+
+    bool IsAtEndAndSkipSemicolons()
+    {
+        while (!IsAtEnd() && Match(TokenType.SEMICOLON)) { }
+        return IsAtEnd();
     }
 
     #endregion

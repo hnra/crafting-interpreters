@@ -365,4 +365,44 @@ public class ParserTests
 
         Assert.IsTrue(hasFailed);
     }
+
+    [Test]
+    public void CanParseEmptyFile()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var hasFailed = false;
+        var parser = new Parser(tokens);
+        parser.OnError += (token, msg) =>
+        {
+            hasFailed = true;
+        };
+
+        var stmts = parser.Parse();
+
+        Assert.IsFalse(hasFailed);
+        CollectionAssert.IsEmpty(stmts);
+    }
+
+    [Test]
+    public void CanParseLonelySemicolons()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var hasFailed = false;
+        var parser = new Parser(tokens);
+        parser.OnError += (token, msg) =>
+        {
+            hasFailed = true;
+        };
+
+        var stmts = parser.Parse();
+
+        Assert.IsFalse(hasFailed);
+        CollectionAssert.IsEmpty(stmts);
+    }
 }

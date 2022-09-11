@@ -26,11 +26,11 @@ class TestLox
             (msg) =>
                 {
                     output.Add(msg);
-                },
-            (msg) =>
-            {
-                hadError = true;
-            });
+                });
+        interpreter.OnError += (msg) =>
+        {
+            hadError = true;
+        };
         var resolver = new Resolver(interpreter, new ScopeStack(), Scope.Create, (token, msg) =>
         {
             hadError = true;

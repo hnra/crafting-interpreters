@@ -4,13 +4,20 @@ using AstGen;
 
 public static class Repl
 {
-    static readonly Interpreter interpreter = new Interpreter((output) =>
+    static readonly Interpreter interpreter = CreateInterpreter();
+
+    static Interpreter CreateInterpreter()
+    {
+        var interpreter = new Interpreter((output) =>
         {
             Console.WriteLine(output);
-        }, (error) =>
+        });
+        interpreter.OnError += (error) =>
         {
             Console.Error.WriteLine($"Runtime error: {error}");
-        });
+        };
+        return interpreter;
+    }
 
     static Scanner CreateScanner(string source)
     {

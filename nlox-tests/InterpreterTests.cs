@@ -5,7 +5,7 @@ using CraftingInterpreters.AstGen;
 
 public class InterpreterTests
 {
-    static Interpreter interpreter = new Interpreter((msg) => { }, (err) => { });
+    static Interpreter interpreter = new Interpreter((msg) => { });
 
     [Test]
     public void LiteralNilExpr()
@@ -289,10 +289,11 @@ public class InterpreterTests
     public void UseBeforeInitIsDisallowed()
     {
         var hadError = false;
-        var errInterpreter = new Interpreter((msg) => { }, (err) =>
+        var errInterpreter = new Interpreter((msg) => { });
+        errInterpreter.OnError += (err) =>
         {
             hadError = true;
-        });
+        };
         var variable = new Token(TokenType.IDENTIFIER, "a", null, 1);
         var declaration = new Var(variable, null);
         var usage = new Expression(new Variable(variable));

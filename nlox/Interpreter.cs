@@ -15,19 +15,20 @@ public class RuntimeException : Exception
 
 public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 {
+    public delegate void ErrorHandler(RuntimeException exception);
+    public event ErrorHandler? OnError;
+
     #region Fields and Constructors
 
     readonly Environment globals = new();
     readonly Dictionary<Expr, int> locals = new();
     readonly Action<string> stdout;
-    readonly Action<RuntimeException> onError;
 
     Environment environment;
 
-    public Interpreter(Action<string> stdout, Action<RuntimeException> onError)
+    public Interpreter(Action<string> stdout)
     {
         this.stdout = stdout;
-        this.onError = onError;
         this.environment = globals;
 
         this.globals.Define("clock", new Clock());
@@ -46,7 +47,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         }
         catch (RuntimeException e)
         {
-            onError(e);
+            OnError?.Invoke(e);
             return null;
         }
     }
@@ -62,7 +63,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         }
         catch (RuntimeException e)
         {
-            onError(e);
+            OnError?.Invoke(e);
         }
     }
 

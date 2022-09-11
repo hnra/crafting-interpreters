@@ -30,7 +30,8 @@ public static class Lox
             }
             else
             {
-                var interpreter = new Interpreter(StdOut, RuntimeError);
+                var interpreter = new Interpreter(StdOut);
+                interpreter.OnError += RuntimeError;
                 Run(args[0], interpreter);
             }
         }
@@ -43,7 +44,8 @@ public static class Lox
     public static void RunFile(string path)
     {
         string source = File.ReadAllText(path);
-        var interpreter = new Interpreter(StdOut, RuntimeError);
+        var interpreter = new Interpreter(StdOut);
+        interpreter.OnError += RuntimeError;
         Run(source, interpreter);
 
         if (hadError)

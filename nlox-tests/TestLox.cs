@@ -13,7 +13,7 @@ class TestLox
             hadError = true;
         });
         var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens, ParserMode.Normal, (tokens, msg) =>
+        var parser = new Parser(tokens, (tokens, msg) =>
         {
             hadError = true;
         });
@@ -25,7 +25,6 @@ class TestLox
                 {
                     output.Add(msg);
                 },
-            InterpreterMode.Normal,
             (msg) =>
             {
                 hadError = true;

@@ -17,7 +17,7 @@ public class ParserTests
             new Token(TokenType.FALSE, "false", false, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var expr = parser.ParseOneExpr();
 
@@ -36,7 +36,7 @@ public class ParserTests
             new Token(TokenType.FALSE, "false", false, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var expr = parser.ParseOneExpr();
 
@@ -59,7 +59,7 @@ public class ParserTests
         tokens.Add(new Token(TokenType.COLON, ":", null, 1));
         tokens.AddRange(trueEqualsFalse.ToList());
         tokens.Add(new Token(TokenType.EOF, "", null, 1));
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var expr = parser.ParseOneExpr();
 
@@ -98,7 +98,7 @@ public class ParserTests
             new Token(TokenType.FALSE, "false", false, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var expr = parser.ParseOneExpr();
 
@@ -122,7 +122,7 @@ public class ParserTests
             new Token(TokenType.FALSE, "false", false, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var expr = parser.ParseOneExpr();
 
@@ -145,7 +145,7 @@ public class ParserTests
             new Token(TokenType.SEMICOLON, ";", null, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var expr = parser.ParseOneExpr();
 
@@ -165,7 +165,7 @@ public class ParserTests
             new Token(TokenType.SEMICOLON, ";", null, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var expr = parser.ParseOneExpr();
 
@@ -187,7 +187,7 @@ public class ParserTests
             new Token(TokenType.SEMICOLON, ";", null, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var expr = parser.ParseOneExpr();
 
@@ -218,7 +218,7 @@ public class ParserTests
             new Token(TokenType.EOF, "", null, 1),
         });
         var hadError = false;
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) =>
+        var parser = new Parser(tokens, (token, msg) =>
         {
             hadError = true;
         });
@@ -240,7 +240,7 @@ public class ParserTests
             new Token(TokenType.RIGHT_BRACE, "}", null, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var stmts = parser.Parse();
 
@@ -262,7 +262,7 @@ public class ParserTests
             new Token(TokenType.RIGHT_BRACE, "}", null, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var stmts = parser.Parse();
 
@@ -287,7 +287,7 @@ public class ParserTests
             new Token(TokenType.RIGHT_BRACE, "}", null, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var stmts = parser.Parse();
 
@@ -314,7 +314,7 @@ public class ParserTests
             new Token(TokenType.EOF, "", null, 1),
         };
         var hadError = false;
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) =>
+        var parser = new Parser(tokens, (token, msg) =>
         {
             hadError = true;
         });
@@ -334,7 +334,7 @@ public class ParserTests
             new Token(TokenType.SEMICOLON, ";", null, 1),
             new Token(TokenType.EOF, "", null, 1),
         };
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) => { });
+        var parser = new Parser(tokens, (token, msg) => { });
 
         var stmts = parser.Parse();
 
@@ -353,7 +353,7 @@ public class ParserTests
             new Token(TokenType.EOF, "", null, 1),
         };
         var hasFailed = false;
-        var parser = new Parser(tokens, ParserMode.Normal, (token, msg) =>
+        var parser = new Parser(tokens, (token, msg) =>
         {
             hasFailed = true;
         });

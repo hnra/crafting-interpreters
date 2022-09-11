@@ -30,8 +30,8 @@ public static class Lox
             }
             else
             {
-                var interpreter = new Interpreter(StdOut, InterpreterMode.Repl, RuntimeError);
-                Run(args[0], ParserMode.Repl, interpreter);
+                var interpreter = new Interpreter(StdOut, RuntimeError);
+                Run(args[0], interpreter);
             }
         }
         else
@@ -43,8 +43,8 @@ public static class Lox
     public static void RunFile(string path)
     {
         string source = File.ReadAllText(path);
-        var interpreter = new Interpreter(StdOut, InterpreterMode.Normal, RuntimeError);
-        Run(source, ParserMode.Normal, interpreter);
+        var interpreter = new Interpreter(StdOut, RuntimeError);
+        Run(source, interpreter);
 
         if (hadError)
         {
@@ -56,11 +56,11 @@ public static class Lox
         }
     }
 
-    public static void Run(string source, ParserMode parserMode, Interpreter interpreter)
+    public static void Run(string source, Interpreter interpreter)
     {
         var scanner = new Scanner(source, Error);
         var tokens = scanner.ScanTokens();
-        var parser = new Parser(tokens, parserMode, Error);
+        var parser = new Parser(tokens, Error);
         var stmts = parser.Parse();
 
         if (hadError)

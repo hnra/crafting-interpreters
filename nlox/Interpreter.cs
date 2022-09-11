@@ -2,11 +2,6 @@ namespace CraftingInterpreters;
 
 using AstGen;
 
-public enum InterpreterMode
-{
-    Normal, Repl,
-}
-
 public class RuntimeException : Exception
 {
     public readonly Token token;
@@ -25,15 +20,13 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
     readonly Environment globals = new();
     readonly Dictionary<Expr, int> locals = new();
     readonly Action<string> stdout;
-    readonly InterpreterMode mode;
     readonly Action<RuntimeException> onError;
 
     Environment environment;
 
-    public Interpreter(Action<string> stdout, InterpreterMode mode, Action<RuntimeException> onError)
+    public Interpreter(Action<string> stdout, Action<RuntimeException> onError)
     {
         this.stdout = stdout;
-        this.mode = mode;
         this.onError = onError;
         this.environment = globals;
 
@@ -277,10 +270,6 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
     public object? VisitExpressionStmt(Expression stmt)
     {
         var val = Evaluate(stmt.expression);
-        if (mode == InterpreterMode.Repl)
-        {
-            stdout(Stringify(val));
-        }
         return null;
     }
 

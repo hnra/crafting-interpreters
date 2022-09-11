@@ -7,7 +7,7 @@ public static class Repl
     static readonly Interpreter interpreter = new Interpreter((output) =>
         {
             Console.WriteLine(output);
-        }, InterpreterMode.Repl, (error) =>
+        }, (error) =>
         {
             Console.Error.WriteLine($"Runtime error: {error}");
         });
@@ -19,7 +19,7 @@ public static class Repl
         });
 
     static Parser CreateParser(List<Token> tokens) =>
-        new Parser(tokens, ParserMode.Repl, (token, msg) =>
+        new Parser(tokens, (token, msg) =>
         {
             Console.Error.WriteLine($"Parser error: {msg}");
         });

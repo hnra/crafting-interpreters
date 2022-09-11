@@ -2,11 +2,6 @@ namespace CraftingInterpreters;
 
 using AstGen;
 
-public enum ParserMode
-{
-    Normal, Repl,
-}
-
 /// <summary>
 /// Recursive descent parser from <see cref="Scanner"/> output to AST.
 /// </summary>
@@ -18,18 +13,12 @@ public class Parser
 
     readonly List<Token> tokens;
     int current = 0;
-    readonly TokenType[] stmtEnds;
     Action<Token, string> onError;
 
-    public Parser(List<Token> tokens, ParserMode mode, Action<Token, string> onError)
+    public Parser(List<Token> tokens, Action<Token, string> onError)
     {
         this.tokens = tokens;
         this.onError = onError;
-        this.stmtEnds = mode switch
-        {
-            ParserMode.Repl => new[] { TokenType.SEMICOLON, TokenType.EOF },
-            _ => new[] { TokenType.SEMICOLON },
-        };
     }
 
     #endregion
@@ -192,7 +181,7 @@ public class Parser
         {
             initializer = Expression();
         }
-        Consume(stmtEnds, "Expect ';' after variable declaration");
+        Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration");
         return new Var(name, initializer);
     }
 
@@ -318,14 +307,14 @@ public class Parser
     Stmt PrintStatement()
     {
         var val = Expression();
-        Consume(stmtEnds, "Expect ';' after value.");
+        Consume(TokenType.SEMICOLON, "Expect ';' after value.");
         return new Print(val);
     }
 
     Stmt ExpressionStatement()
     {
         var expr = Expression();
-        Consume(stmtEnds, "Expect ';' after expression.");
+        Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         return new Expression(expr);
     }
 

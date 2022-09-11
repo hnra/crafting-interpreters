@@ -5,7 +5,7 @@ using CraftingInterpreters.AstGen;
 
 public class InterpreterTests
 {
-    static Interpreter interpreter = new Interpreter((msg) => { });
+    static Interpreter interpreter = new Interpreter();
 
     [Test]
     public void LiteralNilExpr()
@@ -289,7 +289,7 @@ public class InterpreterTests
     public void UseBeforeInitIsDisallowed()
     {
         var hadError = false;
-        var errInterpreter = new Interpreter((msg) => { });
+        var errInterpreter = new Interpreter();
         errInterpreter.OnError += (err) =>
         {
             hadError = true;

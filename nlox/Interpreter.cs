@@ -17,18 +17,18 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 {
     public delegate void ErrorHandler(RuntimeException exception);
     public event ErrorHandler? OnError;
+    public delegate void StdOutHandler(string str);
+    public event StdOutHandler? OnStdOut;
 
     #region Fields and Constructors
 
     readonly Environment globals = new();
     readonly Dictionary<Expr, int> locals = new();
-    readonly Action<string> stdout;
 
     Environment environment;
 
-    public Interpreter(Action<string> stdout)
+    public Interpreter()
     {
-        this.stdout = stdout;
         this.environment = globals;
 
         this.globals.Define("clock", new Clock());
@@ -264,7 +264,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
     public object? VisitPrintStmt(Print stmt)
     {
         var val = Evaluate(stmt.expression);
-        stdout(Stringify(val));
+        OnStdOut?.Invoke(Stringify(val));
         return null;
     }
 

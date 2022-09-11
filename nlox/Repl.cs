@@ -8,10 +8,11 @@ public static class Repl
 
     static Interpreter CreateInterpreter()
     {
-        var interpreter = new Interpreter((output) =>
+        var interpreter = new Interpreter();
+        interpreter.OnStdOut += (output) =>
         {
             Console.WriteLine(output);
-        });
+        };
         interpreter.OnError += (error) =>
         {
             Console.Error.WriteLine($"Runtime error: {error}");

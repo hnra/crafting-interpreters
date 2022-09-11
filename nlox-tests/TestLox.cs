@@ -22,11 +22,11 @@ class TestLox
         var stmts = parser.Parse();
 
         var output = new List<string>();
-        var interpreter = new Interpreter(
-            (msg) =>
-                {
-                    output.Add(msg);
-                });
+        var interpreter = new Interpreter();
+        interpreter.OnStdOut += (msg) =>
+        {
+            output.Add(msg);
+        };
         interpreter.OnError += (msg) =>
         {
             hadError = true;

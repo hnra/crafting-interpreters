@@ -1,10 +1,12 @@
 namespace CraftingInterpreters;
 
+using System.Text;
+
 using AstGen;
 
-public static class Repl
+public class Repl
 {
-    static readonly Interpreter interpreter = CreateInterpreter();
+    readonly Interpreter interpreter = CreateInterpreter();
 
     static Interpreter CreateInterpreter()
     {
@@ -45,24 +47,24 @@ public static class Repl
         return parser;
     }
 
-    static void Run(Source source)
+    void Run(Source source)
     {
         Run(source.tokens);
     }
 
-    static void Run(string source)
+    void Run(string source)
     {
         var scanner = CreateScanner(source);
         Run(scanner.ScanTokens());
     }
 
-    static void Run(List<Token> tokens)
+    void Run(List<Token> tokens)
     {
         var parser = CreateParser(tokens);
         Run(parser.Parse());
     }
 
-    static void Run(List<Stmt> stmts)
+    void Run(List<Stmt> stmts)
     {
         var resolver = new Resolver(interpreter, new ScopeStack(), () => new Scope());
         resolver.OnError += (token, msg) =>
@@ -81,14 +83,15 @@ public static class Repl
         }
     }
 
-    public static void Run(params string[] args)
+    public void Start()
     {
+        Console.TreatControlCAsInput = true;
         Console.WriteLine("NLox - REPL");
         var history = new List<string>();
 
         while (true)
         {
-            var input = ReadInput("> ");
+            var input = ReadInput($"> ");
 
             if (input is TextInput text)
             {
@@ -112,18 +115,19 @@ public static class Repl
         }
     }
 
-    static void SearchHistory(List<string> history)
+    void SearchHistory(List<string> history)
     {
         ClearConsoleLine();
-        Console.Write("Reverse search: ");
         var searchStr = "";
+        var consoleBuffer = "Reverse search: ";
+        var result = "";
+        Console.Write(consoleBuffer);
         while (true)
         {
             var k = ReadKey();
-            var result = history.FirstOrDefault(l => l.Contains(searchStr));
             if (k.ResultType == KeyResultType.NewLine)
             {
-                ClearConsoleLine();
+                ClearBuffer(consoleBuffer.Length);
                 if (!string.IsNullOrEmpty(result))
                 {
                     Console.WriteLine($"> {result}");
@@ -133,19 +137,24 @@ public static class Repl
             }
             else if (k.ResultType == KeyResultType.Delete)
             {
-                searchStr = searchStr.Substring(0, searchStr.Length - 1);
+                if (searchStr.Length > 0)
+                {
+                    searchStr = searchStr.Substring(0, searchStr.Length - 1);
+                }
             }
             else if (k.ResultType == KeyResultType.Cancel)
             {
-                ClearConsoleLine();
+                ClearBuffer(consoleBuffer.Length);
                 break;
             }
             else if (k.ResultType == KeyResultType.Character)
             {
                 searchStr += k.KeyChar;
             }
-            ClearConsoleLine();
-            Console.Write($"Reverse search ({searchStr}): {result}");
+            ClearBuffer(consoleBuffer.Length);
+            result = string.IsNullOrEmpty(searchStr) ? "" : history.FirstOrDefault(l => l.Contains(searchStr));
+            consoleBuffer = $"Reverse search ({searchStr}): {result}";
+            Console.Write(consoleBuffer);
         }
     }
 
@@ -156,6 +165,8 @@ public static class Repl
     record ClearAction() : Input;
     record SearchAction() : Input;
     record CancelAction() : Input;
+    enum Direction { Up, Down, Left, Right }
+    record MoveAction(Direction dir) : Input;
 
     class InputExcetion : Exception { }
 
@@ -197,7 +208,8 @@ public static class Repl
     static Input ReadInput(string indent)
     {
         Console.Write(indent);
-        var str = new StringWriter();
+        var str = new StringBuilder();
+        var i = 0;
         while (true)
         {
             var key = ReadKey();
@@ -206,26 +218,31 @@ public static class Repl
                 case KeyResultType.Character:
                     if (!string.IsNullOrEmpty(key.KeyChar))
                     {
-                        str.Write(key.KeyChar);
-                        Console.Write(key.KeyChar);
+                        var (left, top) = (Console.CursorLeft, Console.CursorTop);
+                        MoveForward(str.Length - i);
+                        ClearBuffer(indent.Length + str.Length);
+                        str.Insert(i, key.KeyChar);
+                        i += key.KeyChar.Length;
+                        Console.Write(indent + str.ToString());
+                        Console.SetCursorPosition(left, top);
+                        MoveForward(key.KeyChar.Length);
                     }
                     break;
                 case KeyResultType.Delete:
-                    var soFar = str.ToString();
-                    if (soFar.Length > 0)
+                    if (str.Length > 0)
                     {
-                        soFar = soFar.Substring(0, soFar.Length - 1);
+                        var (left, top) = (Console.CursorLeft, Console.CursorTop);
+                        MoveForward(str.Length - i);
+                        ClearBuffer(indent.Length + str.Length);
+                        str.Remove(Math.Min(i, str.Length - 1), 1);
+                        i -= 1;
+                        Console.Write(indent + str.ToString());
+                        Console.SetCursorPosition(left - 1, top);
                     }
-                    str.Dispose();
-                    str = new StringWriter();
-                    ClearConsoleLine();
-                    Console.Write(indent);
-                    Console.Write(soFar);
-                    str.Write(soFar);
                     break;
                 case KeyResultType.NewLine:
                     Console.WriteLine();
-                    str.Write(key.KeyChar);
+                    str.Insert(i, key.KeyChar);
                     return new TextInput(str.ToString());
                 case KeyResultType.Exit:
                     return new ExitAction();
@@ -235,15 +252,117 @@ public static class Repl
                     return new SearchAction();
                 case KeyResultType.Cancel:
                     return new CancelAction();
+                case KeyResultType.Move:
+                    switch (Enum.Parse<Direction>(key.KeyChar!))
+                    {
+                        case Direction.Left:
+                            if (i > 0)
+                            {
+                                i -= 1;
+                                MoveCursorBack();
+                            }
+                            break;
+                        case Direction.Right:
+                            if (i < str.Length)
+                            {
+                                i += 1;
+                                MoveCursorForward();
+                            }
+                            break;
+                    }
+                    break;
             }
         }
         throw new InputExcetion();
     }
 
+    static void DeleteChar()
+    {
+        MoveCursorBack();
+        Console.Write(" ");
+        MoveCursorBack();
+    }
+
+    static void MoveCursorBack()
+    {
+        if (Console.CursorLeft > 0)
+        {
+            Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+        }
+        else if (Console.CursorTop > 0)
+        {
+            Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
+        }
+    }
+
+    static void MoveForward(int distance)
+    {
+        var distanceLeft = distance;
+        var targetLeft = Console.CursorLeft;
+        var targetTop = Console.CursorTop;
+        while (distanceLeft > 0)
+        {
+            if (targetLeft >= Console.BufferWidth)
+            {
+                targetTop += 1;
+                targetLeft = 0;
+            }
+            var moveLeft = Math.Min(distanceLeft, Console.BufferWidth - targetLeft);
+            targetLeft += moveLeft;
+            distanceLeft -= moveLeft;
+        }
+        Console.SetCursorPosition(targetLeft, targetTop);
+    }
+
+    static void MoveCursorForward()
+    {
+        if (Console.CursorLeft < Console.BufferWidth)
+        {
+            Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
+        }
+        else if (Console.CursorTop < Console.BufferHeight)
+        {
+            Console.SetCursorPosition(0, Console.CursorTop + 1);
+        }
+    }
+
+    static void ClearBuffer(int bufferLength)
+    {
+        if (bufferLength <= 0)
+        {
+            return;
+        }
+
+        var (left, top) = (Console.CursorLeft, Console.CursorTop);
+
+        if (left > 0)
+        {
+            var moveLeft = Math.Min(left, bufferLength);
+            Console.SetCursorPosition(left - moveLeft, top);
+            ClearConsoleLine(moveLeft);
+            ClearBuffer(bufferLength - moveLeft);
+        }
+        else if (top > 0)
+        {
+            var moveLeft = Math.Min(Console.BufferWidth, bufferLength);
+            Console.SetCursorPosition(Console.BufferWidth - moveLeft, top - 1);
+            ClearConsoleLine(moveLeft);
+            ClearBuffer(bufferLength - moveLeft);
+        }
+    }
+
     static void ClearConsoleLine()
     {
-        var emptyLine = "\r" + string.Join("", Enumerable.Repeat(" ", Console.BufferWidth)) + "\r";
+        Console.SetCursorPosition(0, Console.CursorTop);
+        ClearConsoleLine(Console.BufferWidth);
+    }
+
+    static void ClearConsoleLine(int width)
+    {
+        var (left, top) = (Console.CursorLeft, Console.CursorTop);
+        var emptyLine = string.Join("", Enumerable.Repeat(" ", Math.Min(width, Console.BufferWidth - 1 - left)));
         Console.Write(emptyLine);
+        Console.SetCursorPosition(left, top);
     }
 
     static bool HasOpenBlock(List<Token> tokens) =>
@@ -263,44 +382,28 @@ public static class Repl
         Exit,
         Clear,
         Search,
+        Move,
     }
 
     record KeyResult(string? KeyChar, KeyResultType ResultType);
 
     static KeyResult ReadKey()
     {
-        var hasCancelled = false;
-        Console.CancelKeyPress += OnCancel;
-
-        while (!hasCancelled)
+        var key = Console.ReadKey(true);
+        return (key.Modifiers, key.Key) switch
         {
-            if (!Console.KeyAvailable)
-            {
-                Thread.Sleep(10);
-                continue;
-            }
-
-            var key = Console.ReadKey(true);
-            Console.CancelKeyPress -= OnCancel;
-            return (key.Modifiers, key.Key) switch
-            {
-                (ConsoleModifiers.Control, ConsoleKey.D) => new KeyResult("D", KeyResultType.Exit),
-                (ConsoleModifiers.Control, ConsoleKey.L) => new KeyResult("L", KeyResultType.Clear),
-                (ConsoleModifiers.Control, ConsoleKey.R) => new KeyResult("R", KeyResultType.Search),
-                (_, ConsoleKey.Backspace) => new KeyResult("R", KeyResultType.Delete),
-                (_, ConsoleKey.Enter) => new KeyResult("\n", KeyResultType.NewLine),
-                (_, ConsoleKey.Tab) => new KeyResult("  ", KeyResultType.Character),
-                _ => new KeyResult(key.KeyChar.ToString(), KeyResultType.Character)
-            };
-        }
-
-        Console.CancelKeyPress -= OnCancel;
-        return new KeyResult("C", KeyResultType.Cancel);
-
-        void OnCancel(object? sender, ConsoleCancelEventArgs e)
-        {
-            e.Cancel = true;
-            hasCancelled = true;
-        }
+            (ConsoleModifiers.Control, ConsoleKey.D) => new KeyResult("D", KeyResultType.Exit),
+            (ConsoleModifiers.Control, ConsoleKey.L) => new KeyResult("L", KeyResultType.Clear),
+            (ConsoleModifiers.Control, ConsoleKey.R) => new KeyResult("R", KeyResultType.Search),
+            (ConsoleModifiers.Control, ConsoleKey.C) => new KeyResult("C", KeyResultType.Cancel),
+            (_, ConsoleKey.Backspace) => new KeyResult("R", KeyResultType.Delete),
+            (_, ConsoleKey.Enter) => new KeyResult("\n", KeyResultType.NewLine),
+            (_, ConsoleKey.Tab) => new KeyResult("  ", KeyResultType.Character),
+            (_, ConsoleKey.UpArrow) => new KeyResult(Enum.GetName(typeof(Direction), Direction.Up), KeyResultType.Move),
+            (_, ConsoleKey.DownArrow) => new KeyResult(Enum.GetName(typeof(Direction), Direction.Down), KeyResultType.Move),
+            (_, ConsoleKey.LeftArrow) => new KeyResult(Enum.GetName(typeof(Direction), Direction.Left), KeyResultType.Move),
+            (_, ConsoleKey.RightArrow) => new KeyResult(Enum.GetName(typeof(Direction), Direction.Right), KeyResultType.Move),
+            _ => new KeyResult(key.KeyChar.ToString(), KeyResultType.Character)
+        };
     }
 }

@@ -38,7 +38,7 @@ public static class Lox
         }
         else
         {
-            Repl.Run();
+            new Repl().Start();
         }
     }
 

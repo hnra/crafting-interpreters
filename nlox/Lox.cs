@@ -1,5 +1,7 @@
 ﻿namespace CraftingInterpreters;
 
+using System.Diagnostics;
+
 public static class Lox
 {
     static bool hadError = false;
@@ -38,7 +40,7 @@ public static class Lox
         }
         else
         {
-            new Repl().Start();
+            new Repl.Repl().Start();
         }
     }
 

@@ -151,8 +151,8 @@ public class ReplConsole
                             break;
                         }
                         ClearBuffer();
-                        WriteToBuffer(prompt + history[historyCursor]);
                         historyCursor -= 1;
+                        WriteToBuffer(prompt + history[historyCursor]);
                         break;
                     }
                 case (_, ConsoleKey.DownArrow):
@@ -169,8 +169,8 @@ public class ReplConsole
                             break;
                         }
                         ClearBuffer();
-                        WriteToBuffer(prompt + history[historyCursor]);
                         historyCursor += 1;
+                        WriteToBuffer(prompt + history[historyCursor]);
                         break;
                     }
                 case (_, ConsoleKey.Enter):

@@ -1,0 +1,14 @@
+fun pow(x, a) {
+    if (a == 0) {
+        return 1;
+    }
+    if (a < 0) {
+        var b = -a;
+        return 1 / (pow(x, b));
+    }
+    var result = x;
+    for (var i = 1; i < a; i = i + 1) {
+        result = result * x;
+    }
+    return result;
+}

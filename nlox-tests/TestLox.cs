@@ -19,7 +19,8 @@ class TestLox
         {
             hadError = true;
         };
-        var stmts = parser.Parse();
+        var stmts = Prelude.GetPrelude();
+        stmts.AddRange(parser.Parse());
 
         var output = new List<string>();
         var interpreter = new Interpreter();

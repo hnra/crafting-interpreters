@@ -11,4 +11,8 @@
     <Content Include="Resources/*.lox" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Prelude/prelude.lox" LogicalName="Prelude.lox" />
+  </ItemGroup>
+
 </Project>

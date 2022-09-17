@@ -8,3 +8,12 @@ public class Clock : LoxCallable
     public override string ToString()
         => $"<native func '{nameof(Clock)}'>";
 }
+
+public class TypeOf : LoxCallable
+{
+    public int Arity() => 1;
+    public object Call(Interpreter interpreter, List<object?> arguments) =>
+        arguments[0]!.GetType().ToString();
+    public override string ToString() =>
+        $"<native func '{nameof(TypeOf)}'>";
+}

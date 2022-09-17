@@ -35,6 +35,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
         this.environment = globals;
 
         this.globals.Define("clock", new Clock());
+        this.globals.Define("typeof", new TypeOf());
     }
 
     #endregion

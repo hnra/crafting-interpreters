@@ -5,11 +5,33 @@ using CraftingInterpreters.AstGen;
 
 public class ResolverTests
 {
+    class MockResolver
+    {
+        public readonly Resolver resolver;
+        public readonly ScopeStack scopeStack;
+        public bool hadError = false;
+
+        public MockResolver(Resolver resolver, ScopeStack scopeStack)
+        {
+            this.resolver = resolver;
+            this.scopeStack = scopeStack;
+
+            resolver.OnError += (token, msg) =>
+            {
+                this.hadError = true;
+            };
+        }
+
+        public void Resolve(List<Stmt> stmts)
+        {
+            this.resolver.Resolve(stmts);
+        }
+    }
+
     class MockResolve : IResolve
     {
         Action<Expr, int>? onResolve;
-        public MockResolve() { }
-        public MockResolve(Action<Expr, int> onResolve)
+        public MockResolve(Action<Expr, int>? onResolve)
         {
             this.onResolve = onResolve;
         }
@@ -22,15 +44,12 @@ public class ResolverTests
         }
     }
 
-    static (Resolver Resolver, Func<bool> hadError) CreateResolver(Action<Expr, int>? onResolve)
+    static MockResolver CreateResolver(Action<Expr, int>? onResolve)
     {
-        var hadError = false;
-        var resolver = new Resolver(new MockResolve(), new ScopeStack(), Scope.Create);
-        resolver.OnError += (token, msg) =>
-        {
-            hadError = true;
-        };
-        return (resolver, () => hadError);
+        var mockResolve = new MockResolve(onResolve);
+        var scopeStack = new ScopeStack();
+        var resolver = new Resolver(mockResolve, scopeStack, Scope.Create);
+        return new MockResolver(resolver, scopeStack);
     }
 
     [Test]
@@ -43,9 +62,9 @@ var a = 44;
 }
 ";
         var stmts = TestUtilties.ParseStmts(source);
-        var (resolver, hadError) = CreateResolver(null);
+        var resolver = CreateResolver(null);
         resolver.Resolve(stmts);
-        Assert.IsTrue(hadError());
+        Assert.IsTrue(resolver.hadError);
     }
 
     [Test]
@@ -55,9 +74,9 @@ var a = 44;
 this.apa = 44;
 ";
         var stmts = TestUtilties.ParseStmts(source);
-        var (resolver, hadError) = CreateResolver(null);
+        var resolver = CreateResolver(null);
         resolver.Resolve(stmts);
-        Assert.IsTrue(hadError());
+        Assert.IsTrue(resolver.hadError);
     }
 
     [Test]
@@ -69,9 +88,9 @@ fun foo() {
 }
 ";
         var stmts = TestUtilties.ParseStmts(source);
-        var (resolver, hadError) = CreateResolver(null);
+        var resolver = CreateResolver(null);
         resolver.Resolve(stmts);
-        Assert.IsTrue(hadError());
+        Assert.IsTrue(resolver.hadError);
     }
 
     [Test]
@@ -85,9 +104,9 @@ class Eclair {
 }
 ";
         var stmts = TestUtilties.ParseStmts(source);
-        var (resolver, hadError) = CreateResolver(null);
+        var resolver = CreateResolver(null);
         resolver.Resolve(stmts);
-        Assert.IsTrue(hadError());
+        Assert.IsTrue(resolver.hadError);
     }
 
     [Test]
@@ -97,8 +116,47 @@ class Eclair {
 super.notEvenInAClass();
 ";
         var stmts = TestUtilties.ParseStmts(source);
-        var (resolver, hadError) = CreateResolver(null);
+        var resolver = CreateResolver(null);
         resolver.Resolve(stmts);
-        Assert.IsTrue(hadError());
+        Assert.IsTrue(resolver.hadError);
+    }
+
+    [Test]
+    public void IdentifiersDoNotOverwrite()
+    {
+        var source = @"
+{
+    var i = 0; while (i < 10) { i = i + 1;
+        {
+        }
+    }
+}
+";
+        var stmts = TestUtilties.ParseStmts(source);
+        var resolutions = new Dictionary<Expr, int>();
+        var resolver = CreateResolver((expr, distance) =>
+        {
+            resolutions[expr] = distance;
+        });
+        resolver.Resolve(stmts);
+        Assert.IsFalse(resolver.hadError);
+        Assert.AreEqual(3, resolutions.Count);
+    }
+
+    [Test]
+    public void ForLoopHaveCorrectDistance()
+    {
+        var source = @"
+for (var i = 0; i < 10; i = i + 1) {
+}
+";
+        var stmts = TestUtilties.ParseStmts(source);
+        var resolutions = new List<(Expr Expr, int Distance)>();
+        var resolver = CreateResolver((expr, distance) =>
+        {
+            resolutions.Add((expr, distance));
+        });
+        resolver.Resolve(stmts);
+        Assert.AreEqual(3, resolutions.Count);
     }
 }

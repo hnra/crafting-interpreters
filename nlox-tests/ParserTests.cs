@@ -405,4 +405,70 @@ public class ParserTests
         Assert.IsFalse(hasFailed);
         CollectionAssert.IsEmpty(stmts);
     }
+
+    [Test]
+    public void ForLoopsGetDesugared()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.FOR, "for", null, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1),
+            new Token(TokenType.VAR, "var", null, 1),
+            new Token(TokenType.IDENTIFIER, "i", null, 1),
+            new Token(TokenType.EQUAL, "=", null, 1),
+            new Token(TokenType.NUMBER, "0", 0, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.IDENTIFIER, "i", null, 1),
+            new Token(TokenType.LESS, "<", null, 1),
+            new Token(TokenType.NUMBER, "10", 10, 1),
+            new Token(TokenType.SEMICOLON, ";", null, 1),
+            new Token(TokenType.IDENTIFIER, "i", null, 1),
+            new Token(TokenType.EQUAL, "=", null, 1),
+            new Token(TokenType.IDENTIFIER, "i", null, 1),
+            new Token(TokenType.PLUS, "+", null, 1),
+            new Token(TokenType.NUMBER, "1", 1, 1),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1),
+            new Token(TokenType.LEFT_BRACE, "{", null, 1),
+            new Token(TokenType.RIGHT_BRACE, "}", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens);
+
+        var stmts = parser.Parse();
+        CollectionAssert.IsNotEmpty(stmts);
+        var declaration = stmts[0];
+        Assert.IsInstanceOf(typeof(Block), declaration);
+        var block = (Block)declaration;
+        Assert.IsInstanceOf(typeof(Var), block.statements[0]);
+        var decl = (Var)block.statements[0];
+        Assert.AreEqual("i", decl.name.lexeme);
+        Assert.IsInstanceOf(typeof(Literal), decl.initializer);
+        Assert.AreEqual(0, ((Literal)decl.initializer).value);
+        Assert.IsInstanceOf(typeof(While), block.statements[1]);
+        var whileStmt = (While)block.statements[1];
+        Assert.IsInstanceOf(typeof(Binary), whileStmt.condition);
+        var condition = (Binary)whileStmt.condition;
+        Assert.AreEqual(TokenType.LESS, condition.op.type);
+        Assert.IsInstanceOf(typeof(Variable), condition.left);
+        var condLeft = (Variable)condition.left;
+        Assert.IsInstanceOf(typeof(Literal), condition.right);
+        var condRight = (Literal)condition.right;
+        Assert.AreEqual("i", condLeft.name.lexeme);
+        Assert.AreEqual(10, condRight.value);
+        Assert.IsInstanceOf(typeof(Block), whileStmt.body);
+        var whileBody = (Block)whileStmt.body;
+        Assert.IsInstanceOf(typeof(Expression), whileBody.statements[1]);
+        var increment = (Expression)whileBody.statements[1];
+        Assert.IsInstanceOf(typeof(Assign), increment.expression);
+        var assign = (Assign)increment.expression;
+        Assert.AreEqual("i", assign.name.lexeme);
+        Assert.IsInstanceOf(typeof(Binary), assign.value);
+        var binaryIncr = (Binary)assign.value;
+        Assert.IsInstanceOf(typeof(Variable), binaryIncr.left);
+        var left = (Variable)binaryIncr.left;
+        Assert.IsInstanceOf(typeof(Literal), binaryIncr.right);
+        var right = (Literal)binaryIncr.right;
+        Assert.AreEqual(TokenType.PLUS, binaryIncr.op.type);
+        Assert.AreEqual("i", left.name.lexeme);
+        Assert.AreEqual(1, right.value);
+    }
 }

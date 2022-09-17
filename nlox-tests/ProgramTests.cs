@@ -210,7 +210,6 @@ glazed.cook();
     [Test]
     public void CanReferToSuperclass()
     {
-
         var lox = new TestLox();
         var source = @"
 class Donut {
@@ -231,5 +230,21 @@ glazed.cook();
         Assert.AreEqual(2, output.Count);
         Assert.AreEqual("Fry until golden brown.", output[0]);
         Assert.AreEqual("Cover in glaze.", output[1]);
+    }
+
+    [Test]
+    public void ForLoopsWork()
+    {
+        var lox = new TestLox();
+        var source = @"
+var x = 0;
+for (var i = 0; i < 10; i = i + 1) {
+    x = i;
+}
+print x;
+";
+        var output = lox.Run(source);
+        Assert.AreEqual(1, output.Count);
+        Assert.AreEqual("10", output[0]);
     }
 }

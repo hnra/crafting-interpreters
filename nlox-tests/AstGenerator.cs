@@ -49,8 +49,7 @@ public class AstGenerator
                 "Block : List<Stmt> statements",
                 "Function : Token name, List<Token> parameters, List<Stmt> body",
                 "Return : Token keyword, Expr? value",
-                "Class : Token name, Variable? superclass, List<Function> methods",
-                // "Import : Token importPath"
+                "Class : Token name, Variable? superclass, List<Function> methods"
             }))
         };
 
@@ -82,7 +81,7 @@ public class AstGenerator
         }
         writer.WriteLine("}");
 
-        writer.WriteLine($"\npublic abstract record {baseName}");
+        writer.WriteLine($"\npublic abstract class {baseName}");
         writer.WriteLine("{");
         writer.WriteLine($"    public abstract R Accept<R>({baseName}Visitor<R> visitor);");
         writer.WriteLine("}");
@@ -100,8 +99,22 @@ public class AstGenerator
 
     static void DefineType(StringWriter writer, string baseName, string className, string fields)
     {
-        writer.WriteLine($"\npublic record {className}({fields}) : {baseName}");
+        writer.WriteLine($"\npublic class {className} : {baseName}");
         writer.WriteLine("{");
+        foreach (var field in fields.Split(","))
+        {
+            var fieldType = field.Trim().Split(" ")[0].Trim();
+            var fieldName = field.Trim().Split(" ")[1].Trim();
+            writer.WriteLine($"    public readonly {fieldType} {fieldName};");
+        }
+        writer.WriteLine($"    public {className}({fields})");
+        writer.WriteLine("    {");
+        foreach (var field in fields.Split(","))
+        {
+            var fieldName = field.Trim().Split(" ")[1].Trim();
+            writer.WriteLine($"        this.{fieldName} = {fieldName};");
+        }
+        writer.WriteLine("    }");
         writer.WriteLine($"    public override R Accept<R>({baseName}Visitor<R> visitor) => visitor.Visit{className}{baseName}(this);");
         writer.WriteLine("}");
     }

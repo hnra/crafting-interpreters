@@ -13,52 +13,115 @@ public interface StmtVisitor<R>
     R VisitClassStmt(Class stmt);
 }
 
-public abstract record Stmt
+public abstract class Stmt
 {
     public abstract R Accept<R>(StmtVisitor<R> visitor);
 }
 
-public record Expression(Expr expression) : Stmt
+public class Expression : Stmt
 {
+    public readonly Expr expression;
+    public Expression(Expr expression)
+    {
+        this.expression = expression;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitExpressionStmt(this);
 }
 
-public record If(Expr condition, Stmt thenBranch, Stmt? elseBranch) : Stmt
+public class If : Stmt
 {
+    public readonly Expr condition;
+    public readonly Stmt thenBranch;
+    public readonly Stmt? elseBranch;
+    public If(Expr condition, Stmt thenBranch, Stmt? elseBranch)
+    {
+        this.condition = condition;
+        this.thenBranch = thenBranch;
+        this.elseBranch = elseBranch;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitIfStmt(this);
 }
 
-public record Print(Expr expression) : Stmt
+public class Print : Stmt
 {
+    public readonly Expr expression;
+    public Print(Expr expression)
+    {
+        this.expression = expression;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitPrintStmt(this);
 }
 
-public record While(Expr condition, Stmt body) : Stmt
+public class While : Stmt
 {
+    public readonly Expr condition;
+    public readonly Stmt body;
+    public While(Expr condition, Stmt body)
+    {
+        this.condition = condition;
+        this.body = body;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitWhileStmt(this);
 }
 
-public record Var(Token name, Expr? initializer) : Stmt
+public class Var : Stmt
 {
+    public readonly Token name;
+    public readonly Expr? initializer;
+    public Var(Token name, Expr? initializer)
+    {
+        this.name = name;
+        this.initializer = initializer;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitVarStmt(this);
 }
 
-public record Block(List<Stmt> statements) : Stmt
+public class Block : Stmt
 {
+    public readonly List<Stmt> statements;
+    public Block(List<Stmt> statements)
+    {
+        this.statements = statements;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitBlockStmt(this);
 }
 
-public record Function(Token name, List<Token> parameters, List<Stmt> body) : Stmt
+public class Function : Stmt
 {
+    public readonly Token name;
+    public readonly List<Token> parameters;
+    public readonly List<Stmt> body;
+    public Function(Token name, List<Token> parameters, List<Stmt> body)
+    {
+        this.name = name;
+        this.parameters = parameters;
+        this.body = body;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitFunctionStmt(this);
 }
 
-public record Return(Token keyword, Expr? value) : Stmt
+public class Return : Stmt
 {
+    public readonly Token keyword;
+    public readonly Expr? value;
+    public Return(Token keyword, Expr? value)
+    {
+        this.keyword = keyword;
+        this.value = value;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitReturnStmt(this);
 }
 
-public record Class(Token name, Variable? superclass, List<Function> methods) : Stmt
+public class Class : Stmt
 {
+    public readonly Token name;
+    public readonly Variable? superclass;
+    public readonly List<Function> methods;
+    public Class(Token name, Variable? superclass, List<Function> methods)
+    {
+        this.name = name;
+        this.superclass = superclass;
+        this.methods = methods;
+    }
     public override R Accept<R>(StmtVisitor<R> visitor) => visitor.VisitClassStmt(this);
 }

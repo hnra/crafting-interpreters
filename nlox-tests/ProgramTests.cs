@@ -245,6 +245,6 @@ print x;
 ";
         var output = lox.Run(source);
         Assert.AreEqual(1, output.Count);
-        Assert.AreEqual("10", output[0]);
+        Assert.AreEqual("9", output[0]);
     }
 }

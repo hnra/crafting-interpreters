@@ -4,11 +4,11 @@ public class LoxClass : LoxCallable
 {
     #region Fields and Constructors
 
-    readonly Dictionary<string, LoxFunction> methods;
+    readonly Dictionary<string, LoxBindable> methods;
     readonly LoxClass? superclass;
     public string Name { get; }
 
-    public LoxClass(string name, LoxClass? superclass, Dictionary<string, LoxFunction> methods)
+    public LoxClass(string name, LoxClass? superclass, Dictionary<string, LoxBindable> methods)
     {
         this.Name = name;
         this.methods = methods;
@@ -19,7 +19,7 @@ public class LoxClass : LoxCallable
 
     #region Methods
 
-    public object Call(Interpreter interpreter, List<object?> arguments)
+    public virtual object Call(Interpreter interpreter, List<object?> arguments)
     {
         var instance = new LoxInstance(this);
         var initializer = FindMethod("init");
@@ -36,7 +36,7 @@ public class LoxClass : LoxCallable
         return initializer?.Arity() ?? 0;
     }
 
-    public LoxFunction? FindMethod(string name)
+    public LoxBindable? FindMethod(string name)
     {
         if (methods.ContainsKey(name))
         {

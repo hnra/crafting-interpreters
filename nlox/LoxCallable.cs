@@ -1,5 +1,10 @@
 namespace CraftingInterpreters;
 
+public class CallException : Exception
+{
+    public CallException(string message) : base(message) { }
+}
+
 public interface LoxCallable
 {
     int Arity();

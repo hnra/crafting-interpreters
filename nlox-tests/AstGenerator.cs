@@ -37,7 +37,8 @@ public class AstGenerator
                 "Get : Expr obj, Token name",
                 "Set : Expr obj, Token name, Expr value",
                 "This : Token keyword",
-                "Super : Token keyword, Token method"
+                "Super : Token keyword, Token method",
+                "Vec : Token bracket, List<Expr> elements"
             })),
             ("Stmt", DefineAst("Stmt", new[]
             {

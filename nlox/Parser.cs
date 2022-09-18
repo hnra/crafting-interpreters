@@ -519,9 +519,29 @@ public class Parser
             var method = Consume(TokenType.IDENTIFIER, "Expect superclass method name.");
             return new Super(keyword, method);
         }
+        if (Match(TokenType.LEFT_BRACKET))
+        {
+            return VecExpr();
+        }
 
         OnError?.Invoke(Peek(), "Expect expression.");
         throw new ParseError();
+    }
+
+    Vec VecExpr()
+    {
+        var bracket = Previous();
+        var elements = new List<Expr>();
+        if (!Check(TokenType.RIGHT_BRACKET))
+        {
+            do
+            {
+                var expr = Expression();
+                elements.Add(expr);
+            } while (Match(TokenType.COMMA));
+        }
+        Consume(TokenType.RIGHT_BRACKET, "Expect ']' at the end of vector.");
+        return new Vec(bracket, elements);
     }
 
     Token Consume(TokenType type, string message)

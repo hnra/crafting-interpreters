@@ -2,7 +2,7 @@ namespace CraftingInterpreters;
 
 using CraftingInterpreters.AstGen;
 
-public class LoxFunction : LoxCallable
+public class LoxFunction : LoxBindable
 {
     #region Fields and Constructors
 
@@ -47,7 +47,7 @@ public class LoxFunction : LoxCallable
         return null;
     }
 
-    public LoxFunction Bind(LoxInstance instance)
+    public LoxBindable Bind(LoxInstance instance)
     {
         var environment = new Environment(closure);
         environment.Define("this", instance);

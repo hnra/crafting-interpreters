@@ -230,6 +230,15 @@ public class Resolver : StmtVisitor<Resolver.Unit>, ExprVisitor<Resolver.Unit>
 
     #region ExprVisitor
 
+    public Unit VisitVecExpr(Vec expr)
+    {
+        foreach (var element in expr.elements)
+        {
+            Resolve(element);
+        }
+        return unit;
+    }
+
     public Unit VisitSuperExpr(Super expr)
     {
         if (currentClass == ClassType.NONE)

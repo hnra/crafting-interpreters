@@ -6,6 +6,9 @@ public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr) => expr.Accept(this);
 
+    public string VisitVecExpr(Vec expr) =>
+        throw new NotImplementedException();
+
     public string VisitSuperExpr(Super expr) =>
         $"super.{expr.method.lexeme}";
 

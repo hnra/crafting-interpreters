@@ -83,6 +83,10 @@ public class Scanner
                 return CreateToken(TokenType.LEFT_BRACE);
             case '}':
                 return CreateToken(TokenType.RIGHT_BRACE);
+            case '[':
+                return CreateToken(TokenType.LEFT_BRACKET);
+            case ']':
+                return CreateToken(TokenType.RIGHT_BRACKET);
             case ',':
                 return CreateToken(TokenType.COMMA);
             case '.':

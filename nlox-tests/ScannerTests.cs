@@ -103,4 +103,19 @@ public class ScannerTests
         Assert.AreEqual(TokenType.IMPORT, tokens[0].type);
         Assert.AreEqual(TokenType.STRING, tokens[1].type);
     }
+
+    [Test]
+    public void ScansBrackets()
+    {
+        var scanner = Create("[1, 2, 3];");
+        var tokens = scanner.ScanTokens();
+
+        Assert.AreEqual(TokenType.LEFT_BRACKET, tokens[0].type);
+        Assert.AreEqual(TokenType.NUMBER, tokens[1].type);
+        Assert.AreEqual(TokenType.COMMA, tokens[2].type);
+        Assert.AreEqual(TokenType.NUMBER, tokens[3].type);
+        Assert.AreEqual(TokenType.COMMA, tokens[4].type);
+        Assert.AreEqual(TokenType.NUMBER, tokens[5].type);
+        Assert.AreEqual(TokenType.RIGHT_BRACKET, tokens[6].type);
+    }
 }

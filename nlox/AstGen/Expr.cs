@@ -15,6 +15,7 @@ public interface ExprVisitor<R>
     R VisitSetExpr(Set expr);
     R VisitThisExpr(This expr);
     R VisitSuperExpr(Super expr);
+    R VisitVecExpr(Vec expr);
 }
 
 public abstract class Expr
@@ -178,4 +179,16 @@ public class Super : Expr
         this.method = method;
     }
     public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitSuperExpr(this);
+}
+
+public class Vec : Expr
+{
+    public readonly Token bracket;
+    public readonly List<Expr> elements;
+    public Vec(Token bracket, List<Expr> elements)
+    {
+        this.bracket = bracket;
+        this.elements = elements;
+    }
+    public override R Accept<R>(ExprVisitor<R> visitor) => visitor.VisitVecExpr(this);
 }

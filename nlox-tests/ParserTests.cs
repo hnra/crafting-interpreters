@@ -471,4 +471,27 @@ public class ParserTests
         Assert.AreEqual("i", left.name.lexeme);
         Assert.AreEqual(1, right.value);
     }
+
+    [Test]
+    public void ListsAreParsed()
+    {
+        var tokens = new List<Token> {
+            new Token(TokenType.LEFT_BRACKET, "[", null, 1),
+            new Token(TokenType.NUMBER, "1", 1, 1),
+            new Token(TokenType.COMMA, ",", null, 1),
+            new Token(TokenType.STRING, "hello", "hello", 1),
+            new Token(TokenType.RIGHT_BRACKET, "]", null, 1),
+            new Token(TokenType.EOF, "", null, 1),
+        };
+        var parser = new Parser(tokens);
+
+        var expr = parser.ParseOneExpr();
+
+        Assert.IsNotNull(expr);
+        Assert.IsInstanceOf(typeof(Vec), expr);
+        var vec = (Vec)expr;
+        CollectionAssert.IsNotEmpty(vec.elements);
+        Assert.IsInstanceOf(typeof(Literal), vec.elements[0]);
+        Assert.IsInstanceOf(typeof(Literal), vec.elements[1]);
+    }
 }

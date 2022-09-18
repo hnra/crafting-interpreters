@@ -36,6 +36,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 
         this.globals.Define("clock", new Clock());
         this.globals.Define("typeof", new TypeOf());
+        this.globals.Define("list", new LoxVector());
     }
 
     #endregion
@@ -206,7 +207,7 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
             environment = new Environment(environment);
             environment.Define("super", superclass);
         }
-        var methods = new Dictionary<string, LoxFunction>();
+        var methods = new Dictionary<string, LoxBindable>();
         foreach (var method in stmt.methods)
         {
             var func = new LoxFunction(method, environment, method.name.lexeme == "init");
@@ -286,6 +287,12 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 
     #region ExprVisitor
 
+    public object? VisitVecExpr(Vec expr)
+    {
+        var obj = new LoxVector().Call(this, expr.elements.Select(Evaluate).ToList());
+        return obj;
+    }
+
     public object? VisitThisExpr(This expr)
     {
         return LookUpVariable(expr.keyword, expr);
@@ -340,7 +347,14 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
             {
                 throw new RuntimeException(expr.paren, $"Expected {callable.Arity()} arguments but got {arguments.Count}.");
             }
-            return callable.Call(this, arguments);
+            try
+            {
+                return callable.Call(this, arguments);
+            }
+            catch (CallException e)
+            {
+                throw new RuntimeException(expr.paren, $"Call failed: {e.Message}");
+            }
         }
         else
         {

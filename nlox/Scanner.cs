@@ -1,5 +1,17 @@
 namespace CraftingInterpreters;
 
+/// <summary>
+/// Scannar which turns groups of characters into tokens.
+/// The scanner uses a regular grammar.
+/// </summary>
+/// <remarks>
+/// Lexical grammar:
+/// NUMBER     -> DIGIT+ ( "." DIGIT+ )? ;
+/// STRING     -> "\"" [^"]* "\"" ;
+/// IDENTIFIER -> ALPHA ( ALPHA | DIGIT )* ;
+/// ALPHA      -> "a"..."z" | "A"..."Z" | "_" ;
+/// DIGIT      -> "0"..."9" ;
+/// </remarks>
 public class Scanner
 {
     public delegate void ErrorHandler(int line, string message);

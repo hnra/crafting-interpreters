@@ -1,4 +1,4 @@
-namespace CraftingInterpreters;
+namespace NLox;
 
 /// <summary>
 /// Scannar which turns groups of characters into tokens.

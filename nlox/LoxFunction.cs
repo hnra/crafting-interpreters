@@ -1,6 +1,6 @@
-namespace CraftingInterpreters;
+namespace NLox;
 
-using CraftingInterpreters.AstGen;
+using NLox.AstGen;
 
 public class LoxFunction : LoxBindable
 {

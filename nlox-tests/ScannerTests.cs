@@ -1,6 +1,6 @@
-namespace nlox_tests;
+namespace NLoxTests;
 
-using CraftingInterpreters;
+using NLox;
 
 public class ScannerTests
 {

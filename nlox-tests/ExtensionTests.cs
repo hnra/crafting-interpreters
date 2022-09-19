@@ -1,4 +1,4 @@
-namespace nlox_tests;
+namespace NLoxTests;
 
 public class ExtensionTests
 {

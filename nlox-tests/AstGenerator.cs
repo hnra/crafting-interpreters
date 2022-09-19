@@ -1,4 +1,4 @@
-namespace nlox_tests.AstGenerator;
+namespace NLoxTests.AstGenerator;
 
 public class AstGenerator
 {
@@ -70,7 +70,7 @@ public class AstGenerator
     {
         var writer = new StringWriter();
 
-        writer.WriteLine("namespace CraftingInterpreters.AstGen;\n");
+        writer.WriteLine("namespace NLox.AstGen;\n");
 
         writer.WriteLine($"public interface {baseName}Visitor<R>");
         writer.WriteLine("{");

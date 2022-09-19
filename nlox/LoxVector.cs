@@ -1,4 +1,4 @@
-namespace CraftingInterpreters;
+namespace NLox;
 
 public class LoxVector : LoxClass
 {

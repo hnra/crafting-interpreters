@@ -1,8 +1,8 @@
-namespace CraftingInterpreters;
+namespace NLox;
 
 using System.Reflection;
 
-using CraftingInterpreters.AstGen;
+using NLox.AstGen;
 
 public static class Prelude
 {

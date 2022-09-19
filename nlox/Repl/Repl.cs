@@ -1,4 +1,4 @@
-namespace CraftingInterpreters.Repl;
+namespace NLox.Repl;
 
 using AstGen;
 

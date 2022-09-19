@@ -1,4 +1,4 @@
-namespace CraftingInterpreters.AstGen;
+namespace NLox.AstGen;
 
 public interface ExprVisitor<R>
 {

@@ -1,7 +1,7 @@
-namespace nlox_tests;
+namespace NLoxTests;
 
-using CraftingInterpreters;
-using CraftingInterpreters.AstGen;
+using NLox;
+using NLox.AstGen;
 
 public class AstPrinterTests
 {

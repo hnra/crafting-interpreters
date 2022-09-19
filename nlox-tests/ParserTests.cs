@@ -442,7 +442,7 @@ public class ParserTests
         var decl = (Var)block.statements[0];
         Assert.AreEqual("i", decl.name.lexeme);
         Assert.IsInstanceOf(typeof(Literal), decl.initializer);
-        Assert.AreEqual(0, ((Literal)decl.initializer).value);
+        Assert.AreEqual(0, ((Literal)decl.initializer!).value);
         Assert.IsInstanceOf(typeof(While), block.statements[1]);
         var whileStmt = (While)block.statements[1];
         Assert.IsInstanceOf(typeof(Binary), whileStmt.condition);
@@ -485,7 +485,7 @@ public class ParserTests
         };
         var parser = new Parser(tokens);
 
-        var expr = parser.ParseOneExpr();
+        var expr = parser.ParseOneExpr()!;
 
         Assert.IsNotNull(expr);
         Assert.IsInstanceOf(typeof(Vec), expr);

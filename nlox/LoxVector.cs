@@ -122,7 +122,7 @@ public class LoxVector : LoxClass
             }
             else
             {
-                throw new CallException($"Vectors can only be indexed with integers, index is: {arguments[0].GetType()}");
+                throw new CallException($"Vectors can only be indexed with integers, index is: {arguments[0]!.GetType()}");
             }
         }
     }

@@ -5,40 +5,45 @@
 #include "memory.h"
 #include "string.h"
 
+static void initLineArray(LineArray *lineArray) {
+    lineArray->lineCapacity = 0;
+    lineArray->lineCount = 0;
+    lineArray->lines = NULL;
+}
+
 void initChunk(Chunk *chunk) {
     chunk->count = 0;
     chunk->capacity = 0;
     chunk->code = NULL;
-    chunk->lineCount = 0;
-    chunk->lineCapacity = 0;
-    chunk->lines = NULL;
+    chunk->lines = malloc(sizeof(LineArray));
+    initLineArray(chunk->lines);
     initValueArray(&chunk->constants);
 }
 
-static void addLine(Chunk *chunk, int line) {
+static void addLine(LineArray *array, int line) {
     line = line - 1;
     if (line < 0) {
         exit(1);
     }
 
     // Grow the array.
-    if (line >= chunk->lineCapacity) {
-        int oldLineCapacity = chunk->lineCapacity;
+    if (line >= array->lineCapacity) {
+        int oldLineCapacity = array->lineCapacity;
         if (line == 0) {
-            chunk->lineCapacity = 8;
+            array->lineCapacity = 8;
         } else {
-            chunk->lineCapacity = line * 2;
+            array->lineCapacity = line * 2;
         }
-        chunk->lines = GROW_ARRAY(int, chunk->lines, oldLineCapacity, chunk->lineCapacity);
+        array->lines = GROW_ARRAY(int, array->lines, oldLineCapacity, array->lineCapacity);
     }
 
     // Zero out the unset lines.
-    if (line >= chunk->lineCount) {
-        memset(&chunk->lines[chunk->lineCount], 0, line - chunk->lineCount + 1);
-        chunk->lineCount = line + 1;
+    if (line >= array->lineCount) {
+        memset(&array->lines[array->lineCount], 0, line - array->lineCount + 1);
+        array->lineCount = line + 1;
     }
 
-    chunk->lines[line]++;
+    array->lines[line]++;
 }
 
 void writeChunk(Chunk *chunk, uint8_t byte, int line) {
@@ -48,15 +53,20 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line) {
         chunk->code = GROW_ARRAY(uint8_t, chunk->code, oldCapacity, chunk->capacity);
     }
 
-    addLine(chunk, line);
+    addLine(chunk->lines, line);
 
     chunk->code[chunk->count] = byte;
     chunk->count++;
 }
 
+static void freeLineArray(LineArray *lineArray) {
+    FREE_ARRAY(int, lineArray->lines, lineArray->lineCapacity);
+}
+
 void freeChunk(Chunk *chunk) {
     FREE_ARRAY(uint8_t, chunk->code, chunk->capacity);
-    FREE_ARRAY(int, chunk->lines, chunk->lineCapacity);
+    freeLineArray(chunk->lines);
+    free(chunk->lines);
     freeValueArray(&chunk->constants);
     initChunk(chunk);
 }
@@ -66,10 +76,10 @@ int addConstant(Chunk *chunk, Value value) {
     return chunk->constants.count - 1;
 }
 
-int getLine(Chunk *chunk, int offset) {
+int getLine(LineArray *array, int offset) {
     int sum = 0;
-    for (int i = 0; i < chunk->lineCount; i++) {
-        sum += chunk->lines[i];
+    for (int i = 0; i < array->lineCount; i++) {
+        sum += array->lines[i];
         if (sum > offset) {
             return i + 1;
         }

@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "chunk.h"
 #include "common.h"
 #include "debug.h"
@@ -14,5 +16,6 @@ int main(int argc, const char *argv[]) {
     writeChunk(&chunk, OP_RETURN, 500);
     disassembleChunk(&chunk, "test chunk");
     freeChunk(&chunk);
+    printf("Size of Chunk: %lu\n", sizeof(Chunk));
     return 0;
 }

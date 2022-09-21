@@ -12,11 +12,11 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 
-release: CPPFLAGS += -O2
+release: CFLAGS += -O2
 release: $(BUILD_DIR)/$(TARGET_EXEC)
 
-debug: CPPFLAGS += -O0
-debug: CPPFLAGS += -D DEBUG_TRACE_EXECUTION
+debug: CFLAGS += -O0
+debug: CFLAGS += -D DEBUG_TRACE_EXECUTION
 debug: $(BUILD_DIR)/$(TARGET_EXEC)
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)

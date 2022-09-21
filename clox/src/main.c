@@ -12,14 +12,9 @@ int main(int argc, const char *argv[]) {
     int constant = addConstant(&chunk, 1.2);
     writeChunk(&chunk, OP_CONSTANT, 123);
     writeChunk(&chunk, constant, 123);
-
     writeChunk(&chunk, OP_NEGATE, 129);
-
     writeChunk(&chunk, OP_RETURN, 500);
-    unsigned long before = NOW();
     interpret(&chunk);
-    unsigned long after = NOW();
-    printf("Diff: %lu\n", after - before);
     freeVM();
     freeChunk(&chunk);
     return 0;

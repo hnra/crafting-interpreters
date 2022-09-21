@@ -11,11 +11,13 @@ INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
+CFLAGS += -Wall -std=c99
 
 release: CFLAGS += -O2
 release: $(BUILD_DIR)/$(TARGET_EXEC)
 
-debug: CFLAGS += -O0
+debug: CFLAGS += -g
+debug: CFLAGS += -Og
 debug: CFLAGS += -D DEBUG_TRACE_EXECUTION
 debug: $(BUILD_DIR)/$(TARGET_EXEC)
 

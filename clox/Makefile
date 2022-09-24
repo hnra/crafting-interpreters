@@ -18,7 +18,7 @@ release: $(BUILD_DIR)/$(TARGET_EXEC)
 
 debug: CFLAGS += -g
 debug: CFLAGS += -Og
-debug: CFLAGS += -D DEBUG_TRACE_EXECUTION
+debug: CFLAGS += -D DEBUG
 debug: $(BUILD_DIR)/$(TARGET_EXEC)
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)

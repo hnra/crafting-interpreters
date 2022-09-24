@@ -12,5 +12,6 @@ NLox adds some extension to Lox, these include:
 * Block comments
 * import statements
 * List type + syntax sugar for initialization
+* Ternary conditional
 
 NLox also does not allow use before initialization of variables.

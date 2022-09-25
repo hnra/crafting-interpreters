@@ -2,7 +2,12 @@
 
 #include <stdio.h>
 
+#include "scanner.h"
 #include "value.h"
+
+void printToken(Token token) {
+    printf("== TOKEN: %.*s %i ==\n", token.length, token.start, token.type);
+}
 
 void disassembleChunk(Chunk* chunk, const char* name) {
     printf("== %s ==\n", name);
@@ -50,6 +55,20 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return simpleInstruction("OP_MULTIPLY", offset);
         case OP_DIVIDE:
             return simpleInstruction("OP_DIVIDE", offset);
+        case OP_NIL:
+            return simpleInstruction("OP_NIL", offset);
+        case OP_TRUE:
+            return simpleInstruction("OP_TRUE", offset);
+        case OP_FALSE:
+            return simpleInstruction("OP_FALSE", offset);
+        case OP_NOT:
+            return simpleInstruction("OP_NOT", offset);
+        case OP_EQUAL:
+            return simpleInstruction("OP_EQUAL", offset);
+        case OP_GREATER:
+            return simpleInstruction("OP_GREATER", offset);
+        case OP_LESS:
+            return simpleInstruction("OP_LESS", offset);
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;

@@ -6,7 +6,7 @@
 #include "value.h"
 
 void printToken(Token token) {
-    printf("== TOKEN: %.*s %i ==\n", token.length, token.start, token.type);
+    printf("%04d %04d '%.*s'\n", token.line, token.type, token.length, token.start);
 }
 
 void disassembleChunk(Chunk* chunk, const char* name) {

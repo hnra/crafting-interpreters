@@ -4,6 +4,9 @@
 #include <string.h>
 
 #include "common.h"
+#ifdef DEBUG_PRINT_TOKEN
+#include "debug.h"
+#endif
 
 typedef struct {
     const char* start;
@@ -27,6 +30,9 @@ static Token makeToken(TokenType type) {
     token.start = scanner.start;
     token.length = (int)(scanner.current - scanner.start);
     token.line = scanner.line;
+#ifdef DEBUG_PRINT_TOKEN
+    printToken(token);
+#endif
     return token;
 }
 

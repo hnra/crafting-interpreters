@@ -10,6 +10,7 @@
 #ifdef DEBUG
 #define DEBUG_PRINT_CODE
 #define DEBUG_TRACE_EXECUTION
+// #define DEBUG_PRINT_TOKEN
 #endif
 
 #define NOW() (unsigned long)time(NULL)

@@ -1,0 +1,27 @@
+if (true) {
+    print "It's true";
+}
+
+if (false) {} else {
+    print "It's false";
+}
+
+if (false) {
+    print "if";
+} else if (true) { 
+    print "else if";
+} else {
+    print "else";
+}
+
+if (true and true) {
+    print "and";
+}
+
+if (false and true) {
+    print "foo";
+}
+
+if (false or true) {
+    print "or";
+}

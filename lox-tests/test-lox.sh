@@ -1,5 +1,7 @@
 #!/bin/bash
 
+start=$(date +%s)
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 lox="$1"
 
@@ -24,3 +26,14 @@ for file in $SCRIPT_DIR/*.lox; do
         ((fail=fail+1))
     fi
 done
+
+now=$(date +%s)
+elapsed_s=$(( (now - start) % 86400 ))
+echo "Time elapsed: $elapsed_s seconds"
+
+((total=success+fail))
+if [[ $fail == 0 ]]; then
+    echo "All $total tests succeeded."
+else
+    echo "$fail out of $total tests failed."
+fi

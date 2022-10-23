@@ -1,0 +1,9 @@
+fun coolCat() {
+    var a = 1;
+    print "Meow";
+
+    fun coolCat2() {
+        var b = true and 44 > 0;
+    }
+}
+print coolCat;

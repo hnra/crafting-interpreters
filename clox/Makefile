@@ -14,7 +14,7 @@ INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
-CFLAGS += -Wall -std=c99 -Wextra
+CFLAGS += -Wall -std=c99 -Wextra -Wno-unused-parameter
 
 release: CFLAGS += -O2
 release: $(RELEASE_DIR)/$(TARGET_EXEC)

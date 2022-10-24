@@ -1,0 +1,12 @@
+fun sayHelloTimes(n) {
+    for (var i = 0; i < n; i = i + 1) {
+        print "Hello";
+    }
+}
+sayHelloTimes(3);
+
+fun add(x, y) {
+    return x + y;
+}
+
+print add(40, 2);

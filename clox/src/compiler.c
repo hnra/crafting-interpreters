@@ -61,7 +61,6 @@ typedef struct {
 
 Parser parser;
 Compiler* current = NULL;
-Chunk* compilingChunk;
 
 static Chunk* currentChunk() { return &current->function->chunk; }
 

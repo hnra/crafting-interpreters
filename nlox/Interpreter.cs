@@ -96,11 +96,14 @@ public class Interpreter : ExprVisitor<object?>, StmtVisitor<object?>, IResolve
 
     static string StringifyDouble(double d)
     {
-        var text = d.ToString();
-
-        if (text.EndsWith(".0"))
+        string text;
+        if (d < 1e5)
         {
-            return text.Substring(0, text.Length - 2);
+            text = d.ToString();
+        }
+        else
+        {
+            text = $"{d:0.####e+0}";
         }
 
         return text;

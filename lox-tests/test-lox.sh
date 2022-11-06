@@ -10,6 +10,14 @@ if ! command -v "$lox" > /dev/null; then
     exit 1
 fi
 
+echoG() {
+    echo -e "\033[0;32m$@\033[0m"
+}
+
+echoR() {
+    echo -e "\033[0;31m$@\033[0m"
+}
+
 fail=0
 success=0
 for file in $SCRIPT_DIR/*.lox; do
@@ -17,10 +25,10 @@ for file in $SCRIPT_DIR/*.lox; do
     expected=$(cat "$expected_out")
     actual=$($lox $file 2>&1)
     if [[ "$expected" == "$actual" ]]; then
-        echo "SUCCESS - $file"
+        echoG "SUCCESS - $file"
         ((success=success+1))
     else
-        echo "FAIL - $file"
+        echoR "FAIL - $file"
         echo "Expected: '$expected'"
         echo "Actual: '$actual'"
         ((fail=fail+1))
@@ -33,7 +41,7 @@ echo "Time elapsed: $elapsed_s seconds"
 
 ((total=success+fail))
 if [[ $fail == 0 ]]; then
-    echo "All $total tests succeeded."
+    echoG "All $total tests succeeded."
 else
-    echo "$fail out of $total tests failed."
+    echoR "$fail out of $total tests failed."
 fi

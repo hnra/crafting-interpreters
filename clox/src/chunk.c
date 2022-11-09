@@ -4,6 +4,7 @@
 
 #include "memory.h"
 #include "string.h"
+#include "vm.h"
 
 static void initLineArray(LineArray *lineArray) {
     lineArray->lineCapacity = 0;
@@ -72,7 +73,9 @@ void freeChunk(Chunk *chunk) {
 }
 
 int addConstant(Chunk *chunk, Value value) {
+    push(value);
     writeValueArray(&chunk->constants, value);
+    pop();
     return chunk->constants.count - 1;
 }
 

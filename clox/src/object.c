@@ -8,13 +8,36 @@
 #include "value.h"
 #include "vm.h"
 
+#define PRINT_MAX_STRING_LENGTH 120
+
+const char* objEnumToStr(ObjType type) {
+    switch (type) {
+        case OBJ_CLOSURE:
+            return "OBJ_CLOSURE";
+        case OBJ_FUNCTION:
+            return "OBJ_FUNCTION";
+        case OBJ_NATIVE:
+            return "OBJ_NATIVE";
+        case OBJ_STRING:
+            return "OBJ_STRING";
+        case OBJ_UPVALUE:
+            return "OBJ_UPVALUE";
+    }
+}
+
 #define ALLOCATE_OBJ(type, objectType) (type*)allocateObject(sizeof(type), objectType)
 
 static Obj* allocateObject(size_t size, ObjType type) {
     Obj* object = (Obj*)reallocate(NULL, 0, size);
     object->type = type;
+    object->isMarked = false;
     object->next = vm.objects;
     vm.objects = object;
+
+#ifdef DEBUG_LOG_ALLOC
+    printf("%p allocate type %s\n", (void*)object, objEnumToStr(object->type));
+#endif
+
     return object;
 }
 
@@ -51,7 +74,9 @@ static ObjString* allocateString(char* chars, int length, uint32_t hash) {
     string->length = length;
     string->chars = chars;
     string->hash = hash;
+    push(OBJ_VAL(string));
     tableSet(&vm.strings, string, NIL_VAL);
+    pop();
     return string;
 }
 
@@ -110,8 +135,11 @@ void printObject(Value value) {
         case OBJ_FUNCTION:
             printFunction(AS_FUNCTION(value));
             break;
+        case OBJ_NATIVE:
+            printf("native");
+            break;
         case OBJ_STRING:
-            printf("%s", AS_CSTRING(value));
+            printf("%.*s", PRINT_MAX_STRING_LENGTH, AS_CSTRING(value));
             break;
         case OBJ_UPVALUE:
             printf("upvalue");

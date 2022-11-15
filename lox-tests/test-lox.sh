@@ -24,11 +24,12 @@ for file in $SCRIPT_DIR/*.lox; do
     expected_out=$(echo $file | sed 's/\.lox$/.out/')
     expected=$(cat "$expected_out")
     actual=$($lox $file 2>&1)
+    file_name=$(basename "$file")
     if [[ "$expected" == "$actual" ]]; then
-        echoG "SUCCESS - $file"
+        echoG "SUCCESS - $file_name"
         ((success=success+1))
     else
-        echoR "FAIL - $file"
+        echoR "FAIL - $file_name"
         echo "Expected: '$expected'"
         echo "Actual: '$actual'"
         ((fail=fail+1))

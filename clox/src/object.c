@@ -24,6 +24,8 @@ const char* objEnumToStr(ObjType type) {
             return "OBJ_UPVALUE";
         case OBJ_CLASS:
             return "OBJ_CLASS";
+        case OBJ_INSTANCE:
+            return "OBJ_INSTANCE";
     }
 }
 

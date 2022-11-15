@@ -22,6 +22,8 @@ const char* objEnumToStr(ObjType type) {
             return "OBJ_STRING";
         case OBJ_UPVALUE:
             return "OBJ_UPVALUE";
+        case OBJ_CLASS:
+            return "OBJ_CLASS";
     }
 }
 
@@ -39,6 +41,12 @@ static Obj* allocateObject(size_t size, ObjType type) {
 #endif
 
     return object;
+}
+
+ObjClass* newClass(ObjString* name) {
+    ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
+    klass->name = name;
+    return klass;
 }
 
 ObjClosure* newClosure(ObjFunction* function) {
@@ -143,6 +151,9 @@ void printObject(Value value) {
             break;
         case OBJ_UPVALUE:
             printf("upvalue");
+            break;
+        case OBJ_CLASS:
+            printf("%s", AS_CLASS(value)->name->chars);
             break;
     }
 }

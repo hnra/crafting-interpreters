@@ -1,0 +1,23 @@
+class Kitty {
+    init(name, age, isFemale) {
+        this.name = name;
+        this.age = age;
+        this.isFemale = isFemale;
+        print "ready to meow!";
+    }
+
+    printOut() {
+        print "Kitty name: " + this.name;
+        print "Years old:";
+        print this.age;
+        print "Female?";
+        if (this.isFemale) {
+            print "Yup!";
+        } else {
+            print "Nope!";
+        }
+    }
+}
+
+var kitty = Kitty("Dolf", 20, false);
+kitty.printOut();

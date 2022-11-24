@@ -1,4 +1,8 @@
-class Brioche {}
+class Brioche {
+    butter() {
+        print "butter";
+    }
+}
 print Brioche;
 var brioche = Brioche();
 print brioche;

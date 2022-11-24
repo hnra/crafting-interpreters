@@ -1,0 +1,17 @@
+class Drink {
+    contents(first, second) {
+        print "A drink of " + first + " and " + second;
+    }
+}
+var drink = Drink();
+drink.contents("gin", "juice");
+
+class Nested {
+    method() {
+        fun function() {
+            print this;
+        }
+        function();
+    }
+}
+Nested().method();

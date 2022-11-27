@@ -1,0 +1,8 @@
+var hello = nil;
+{
+    var a = "apa";
+    var b = "bepa";
+    fun f() { print a; print b; }
+    hello = f;
+}
+hello();

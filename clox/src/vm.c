@@ -186,7 +186,7 @@ static ObjUpvalue* captureUpvalue(Value* local) {
 }
 
 static void closeUpvalues(Value* last) {
-    while (vm.openUpvalues != NULL && vm.openUpvalues->location > last) {
+    while (vm.openUpvalues != NULL && vm.openUpvalues->location >= last) {
         ObjUpvalue* upvalue = vm.openUpvalues;
         upvalue->closed = *upvalue->location;
         upvalue->location = &upvalue->closed;

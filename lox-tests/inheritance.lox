@@ -5,8 +5,18 @@ class A {
 }
 
 class B < A {
-    
+    aMethod() {
+        super.method();
+    }
+}
+
+class C < B {
+    superMethod() {
+        super.aMethod();
+    }
 }
 
 var b = B();
 b.method();
+b.aMethod();
+C().superMethod();

@@ -288,7 +288,11 @@ static InterpretResult run() {
                     runtimeError("Operand must be a number.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
+#ifdef NAN_BOXING
+                push(NUMBER_VAL(-AS_NUMBER(pop())));
+#else
                 AS_NUMBER(*(vm.stackTop - 1)) *= -1;
+#endif
                 break;
             case OP_ADD: {
                 if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
